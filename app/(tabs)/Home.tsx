@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { fetchProducts, selectProducts } from '../redux/slices/productsSlice';
 import { useAppDispatch, useAppSelector } from '../redux/store';
@@ -24,12 +24,7 @@ const HomeScreen = () => {
   const renderItem = ({ item }: { item: Product }) => (
     <TouchableOpacity
       style={styles.productCard}
-      onPress={() =>
-        router.push({
-          pathname: '/ProductDetailScreen',
-          params: { id: item.id.toString() },
-        })
-      }
+      onPress={() => router.push(`/product/${item.id}`)}
     >
       <Image
         source={{ uri: item.image }}
