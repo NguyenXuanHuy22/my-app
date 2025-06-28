@@ -7,7 +7,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View, //Quang
 } from 'react-native';
 import { fetchProducts, selectProducts } from '../redux/slices/productsSlice';
 import { useAppDispatch, useAppSelector } from '../redux/store';
