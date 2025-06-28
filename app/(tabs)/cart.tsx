@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     orderText: {
         color: '#fff',
         fontWeight: '600',
-        fontSize: 16,
+        fontSize: 20,
     },
 });
-//quang tèo22222
