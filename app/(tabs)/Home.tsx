@@ -1,6 +1,14 @@
 import { useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { fetchProducts, selectProducts } from '../redux/slices/productsSlice';
 import { useAppDispatch, useAppSelector } from '../redux/store';
 
@@ -13,23 +21,38 @@ interface Product {
 
 const HomeScreen = () => {
   const dispatch = useAppDispatch();
-  const products = useAppSelector(selectProducts) as Product[];
-  const loading = useAppSelector(state => state.products.loading);
   const router = useRouter();
 
+  const products = useAppSelector(selectProducts) as Product[];
+  const loading = useAppSelector(state => state.products.loading);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+
+  // Fetch products on mount
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
+
+  // Filter when search changes
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredProducts(products);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const filtered = products.filter(p =>
+        p.name.toLowerCase().includes(query)
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [searchQuery, products]);
 
   const renderItem = ({ item }: { item: Product }) => (
     <TouchableOpacity
       style={styles.productCard}
       onPress={() => router.push(`/product/${item.id}`)}
     >
-      <Image
-        source={{ uri: item.image }}
-        style={styles.image}
-      />
+      <Image source={{ uri: item.image }} style={styles.image} />
       <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.price}>{item.price.toLocaleString()} VND</Text>
     </TouchableOpacity>
@@ -39,17 +62,21 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <View style={styles.searchBarContainer}>
         <Text style={styles.title}>Sản phẩm</Text>
-        <TouchableOpacity style={styles.searchButton}>
-          <Text>🔍</Text>
-        </TouchableOpacity>
+        <TextInput
+          placeholder="Tìm sản phẩm..."
+          style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
       </View>
+
       {loading ? (
         <Text style={styles.loadingText}>Đang tải...</Text>
-      ) : products.length === 0 ? (
+      ) : filteredProducts.length === 0 ? (
         <Text style={styles.emptyText}>Không có sản phẩm nào</Text>
       ) : (
         <FlatList
-          data={products}
+          data={filteredProducts}
           keyExtractor={item => item.id}
           numColumns={2}
           renderItem={renderItem}
@@ -68,17 +95,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   searchBarContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 8,
   },
-  searchButton: {
-    padding: 8,
+  searchInput: {
+    backgroundColor: '#f1f1f1',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
   productCard: {
     flex: 1,
