@@ -145,5 +145,6 @@ const styles = StyleSheet.create({
 });
 
 //Quang
+//Huy
 
 export default HomeScreen;
