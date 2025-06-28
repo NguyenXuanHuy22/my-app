@@ -9,8 +9,10 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { addToCart } from '../../redux/slices/cartSlice';
 import { selectProductById } from '../../redux/slices/productsSlice'; // 👈 sửa đường dẫn
-import { useAppSelector } from '../../redux/store'; // 👈 sửa đường dẫn
+import { useAppDispatch, useAppSelector } from '../../redux/store'; // 👈 sửa đường dẫn
+
 
 const sizes = ['S', 'M', 'L'];
 
@@ -21,6 +23,7 @@ export default function ProductDetailScreen() {
     const product = useAppSelector(selectProductById(id as string));
     const [selectedSize, setSelectedSize] = useState('M');
     const [isFavorite, setIsFavorite] = useState(false);
+    const dispatch = useAppDispatch();
 
     if (!product) return <Text style={{ padding: 20 }}>Không tìm thấy sản phẩm</Text>;
 
@@ -82,10 +85,26 @@ export default function ProductDetailScreen() {
             {/* Footer */}
             <View style={styles.footer}>
                 <Text style={styles.price}>{product.price} vnd</Text>
-                <TouchableOpacity style={styles.cartButton}>
+                <TouchableOpacity
+                    style={styles.cartButton}
+                    onPress={() => {
+                        dispatch(
+                            addToCart({
+                                id: product.id,
+                                name: product.name,
+                                image: product.image,
+                                price: product.price,
+                                size: selectedSize,
+                                quantity: 1,
+                            })
+                        );
+                        router.push('/cart'); // 👉 chuyển sang giỏ hàng
+                    }}
+                >
                     <Ionicons name="cart-outline" size={20} color="#fff" />
                     <Text style={styles.cartText}>Thêm vào giỏ hàng</Text>
                 </TouchableOpacity>
+
             </View>
         </ScrollView>
     );

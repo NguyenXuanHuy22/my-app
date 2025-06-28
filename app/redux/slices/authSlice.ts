@@ -20,7 +20,7 @@ interface AuthState {
   error: string | null;
 }
 
-const API = 'http://192.168.1.100:3000'; // Sử dụng IP LAN nếu dùng thiết bị thật
+const API = 'http://192.168.1.9:3000'; // Sử dụng IP LAN nếu dùng thiết bị thật
 
 // ✅ Hàm tạo ID ngẫu nhiên
 const generateId = () => Math.random().toString(36).substring(2, 10);

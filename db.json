@@ -35,6 +35,15 @@
       "password": "12345678",
       "phone": "123456789",
       "role": "user"
+    },
+    {
+      "id": "daoff2oj",
+      "name": "nhat quang",
+      "email": "quang123@gmail.com",
+      "phone": "0123456789",
+      "password": "123456",
+      "address": "Ha noi",
+      "role": "user"
     }
   ],
   "wishlists": [
@@ -71,6 +80,11 @@
       "id": "BtWqaD_F",
       "items": [],
       "userId": "esJ-EyFN"
+    },
+    {
+      "id": "wccsdyx1",
+      "userId": "daoff2oj",
+      "items": []
     }
   ],
   "carts": [
@@ -103,6 +117,11 @@
       "id": "nvZWZ56a",
       "items": [],
       "userId": "esJ-EyFN"
+    },
+    {
+      "id": "56ya1h2k",
+      "userId": "daoff2oj",
+      "items": []
     }
   ],
   "orders": [
@@ -145,6 +164,13 @@
       "status": "Chưa có đơn hàng",
       "total": 0,
       "userId": "esJ-EyFN"
+    },
+    {
+      "id": "5keyrecr",
+      "userId": "daoff2oj",
+      "status": "Chưa có đơn hàng",
+      "total": 0,
+      "items": []
     }
   ],
   "comments": [
