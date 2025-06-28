@@ -50,7 +50,7 @@ const HomeScreen = () => {
   const renderItem = ({ item }: { item: Product }) => (
     <TouchableOpacity
       style={styles.productCard}
-      // onPress={() => router.push(`/product/${item.id}`)}
+      onPress={() => router.push(`/product/${item.id}`)}
     >
       <Image source={{ uri: item.image }} style={styles.image} />
       <Text style={styles.name}>{item.name}</Text>
@@ -143,8 +143,5 @@ const styles = StyleSheet.create({
     color: '#888',
   },
 });
-
-//Quang
-//Huy
 
 export default HomeScreen;
