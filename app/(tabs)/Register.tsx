@@ -1,6 +1,15 @@
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers, registerUser } from "../redux/slices/authSlice";
 import { RootState } from "../redux/store";
@@ -11,8 +20,8 @@ const RegisterScreen = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [address, setAddress] = useState('');
-  const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // 👁 Hiện/ẩn mật khẩu
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -22,33 +31,42 @@ const RegisterScreen = () => {
     dispatch(fetchUsers() as any);
   }, []);
 
-  const handleRegister = () => {
-    // Kiểm tra rỗng
+  const handleRegister = async () => {
+    //  Kiểm tra thiếu thông tin
     if (!name || !email || !phone || !password || !address) {
-      Alert.alert("Thiếu thông tin", "Vui lòng điền đầy đủ tất cả các trường.");
+      setErrorMessage('Vui lòng điền đầy đủ tất cả các trường.');
       return;
     }
 
-    // Kiểm tra email
-    if (!email.includes('@') || !email.includes('.')) {
-      setEmailError(true);
+    //  Email hợp lệ
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage('Email không hợp lệ.');
       return;
     }
-    setEmailError(false);
 
-    // Kiểm tra độ dài mật khẩu
+    //  SĐT Việt Nam hợp lệ
+    const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+    if (!phoneRegex.test(phone)) {
+      setErrorMessage('Số điện thoại không hợp lệ (phải đủ 10 số và đúng đầu số Việt Nam).');
+      return;
+    }
+
+    //  Mật khẩu >= 6 ký tự
     if (password.length < 6) {
-      setPasswordError(true);
+      setErrorMessage('Mật khẩu phải từ 6 ký tự trở lên.');
       return;
     }
-    setPasswordError(false);
 
-    // Kiểm tra trùng email/phone
+    //  Email hoặc sđt trùng
     const isExist = users.some(user => user.email === email || user.phone === phone);
     if (isExist) {
-      Alert.alert("Lỗi", "Email hoặc số điện thoại đã tồn tại!");
+      setErrorMessage('Email hoặc số điện thoại đã tồn tại!');
       return;
     }
+
+    //  Xóa lỗi trước khi đăng ký
+    setErrorMessage('');
 
     const newUser = {
       id: generateId(),
@@ -61,20 +79,23 @@ const RegisterScreen = () => {
     };
 
     dispatch(registerUser(newUser) as any)
-      .then((res: any) => {
+      .then(async (res: any) => {
         if (!res.error) {
+          // Lưu thông tin vào AsyncStorage sau khi đăng ký
+          await AsyncStorage.setItem('currentUser', JSON.stringify(newUser));
+
           Alert.alert("Thành công", "Đăng ký tài khoản thành công!");
           setName('');
           setEmail('');
           setPhone('');
           setPassword('');
           setAddress('');
-          router.replace('/(tabs)/Login'); // ✅ chuyển đến LoginScreen sau khi đăng ký
+          router.replace('/(tabs)/Login');
         } else {
-          Alert.alert("Lỗi", "Không thể đăng ký.");
+          setErrorMessage('Đăng ký thất bại. Vui lòng thử lại.');
         }
       })
-      .catch(() => Alert.alert("Lỗi", "Không thể đăng ký."));
+      .catch(() => setErrorMessage('Đã xảy ra lỗi khi đăng ký.'));
   };
 
   const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -91,14 +112,13 @@ const RegisterScreen = () => {
         onChangeText={setName}
       />
       <TextInput
-        style={[styles.input, emailError && styles.errorInput]}
+        style={styles.input}
         placeholder="Nhập email"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
       />
-      {emailError && <Text style={styles.errorText}>Email không hợp lệ</Text>}
-
       <TextInput
         style={styles.input}
         placeholder="Nhập số điện thoại"
@@ -106,14 +126,20 @@ const RegisterScreen = () => {
         onChangeText={setPhone}
         keyboardType="phone-pad"
       />
-      <TextInput
-        style={[styles.input, passwordError && styles.errorInput]}
-        placeholder="Nhập mật khẩu"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      {passwordError && <Text style={styles.errorText}>Mật khẩu phải từ 6 ký tự trở lên</Text>}
+
+      {/*  Mật khẩu + icon toggle */}
+      <View style={styles.passwordContainer}>
+        <TextInput
+          style={styles.passwordInput}
+          placeholder="Nhập mật khẩu"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={22} color="#333" />
+        </TouchableOpacity>
+      </View>
 
       <TextInput
         style={styles.input}
@@ -121,6 +147,8 @@ const RegisterScreen = () => {
         value={address}
         onChangeText={setAddress}
       />
+
+      {errorMessage !== '' && <Text style={styles.errorText}>{errorMessage}</Text>}
 
       <TouchableOpacity
         style={[
@@ -133,7 +161,6 @@ const RegisterScreen = () => {
         <Text style={styles.buttonText}>Đăng ký</Text>
       </TouchableOpacity>
 
-      {/* ✅ Đã có tài khoản? */}
       <View style={styles.loginPrompt}>
         <Text style={{ color: '#333' }}>Bạn đã có tài khoản? </Text>
         <TouchableOpacity onPress={() => router.push('/(tabs)/Login')}>
@@ -144,27 +171,52 @@ const RegisterScreen = () => {
   );
 };
 
+export default RegisterScreen;
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-  subtitle: { fontSize: 16, color: '#666', marginBottom: 20 },
+  container: { flex: 1, padding: 20, backgroundColor: '#fff', justifyContent: 'center' },
+  title: { fontSize: 26, fontWeight: 'bold', marginBottom: 10, color: '#1e90ff', textAlign: 'center' },
+  subtitle: { fontSize: 16, color: '#666', marginBottom: 20, textAlign: 'center' },
   input: {
     borderWidth: 1, borderColor: '#ccc',
-    borderRadius: 5, padding: 10, marginBottom: 10
+    borderRadius: 8, padding: 12, marginBottom: 12,
+    fontSize: 16, backgroundColor: '#fff'
   },
-  errorInput: { borderColor: 'red' },
-  errorText: { color: 'red', marginBottom: 10 },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    backgroundColor: '#fff'
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center'
+  },
   button: {
     backgroundColor: '#1e90ff',
-    padding: 15, borderRadius: 5,
-    alignItems: 'center', marginTop: 10
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 5
   },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
   loginPrompt: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 20
   }
 });
-
-export default RegisterScreen;
