@@ -2,6 +2,7 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
+    Alert,
     Image,
     ScrollView,
     StyleSheet,
@@ -10,9 +11,8 @@ import {
     View,
 } from 'react-native';
 import { addToCart } from '../../redux/slices/cartSlice';
-import { selectProductById } from '../../redux/slices/productsSlice'; // 👈 sửa đường dẫn
-import { useAppDispatch, useAppSelector } from '../../redux/store'; // 👈 sửa đường dẫn
-
+import { selectProductById } from '../../redux/slices/productsSlice';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
 
 const sizes = ['S', 'M', 'L'];
 
@@ -23,9 +23,31 @@ export default function ProductDetailScreen() {
     const product = useAppSelector(selectProductById(id as string));
     const [selectedSize, setSelectedSize] = useState('M');
     const [isFavorite, setIsFavorite] = useState(false);
+    const currentUser = useAppSelector(state => state.auth.currentUser);
     const dispatch = useAppDispatch();
 
     if (!product) return <Text style={{ padding: 20 }}>Không tìm thấy sản phẩm</Text>;
+
+    const handleAddToCart = () => {
+        if (!currentUser) {
+            Alert.alert("Vui lòng đăng nhập", "Bạn cần đăng nhập để thêm vào giỏ hàng");
+            return;
+        }
+
+        dispatch(
+            addToCart({
+                id: product.id,
+                name: product.name,
+                image: product.image,
+                price: product.price,
+                size: selectedSize,
+                quantity: 1,
+                userId: currentUser.id,
+            })
+        );
+
+        router.push('/cart'); // 👉 chuyển sang giỏ hàng
+    };
 
     return (
         <ScrollView style={styles.container}>
@@ -60,7 +82,6 @@ export default function ProductDetailScreen() {
             <View style={styles.ratingRow}>
                 <Text style={styles.star}>⭐</Text>
                 <Text style={styles.ratingText}>4.0/5 </Text>
-                <Text style={styles.reviewCount}>(45 Đánh giá)</Text>
             </View>
 
             {/* Description */}
@@ -84,27 +105,14 @@ export default function ProductDetailScreen() {
 
             {/* Footer */}
             <View style={styles.footer}>
-                <Text style={styles.price}>{product.price} vnd</Text>
+                <Text style={styles.price}>{product.price} VND</Text>
                 <TouchableOpacity
                     style={styles.cartButton}
-                    onPress={() => {
-                        dispatch(
-                            addToCart({
-                                id: product.id,
-                                name: product.name,
-                                image: product.image,
-                                price: product.price,
-                                size: selectedSize,
-                                quantity: 1,
-                            })
-                        );
-                        router.push('/cart'); // 👉 chuyển sang giỏ hàng
-                    }}
+                    onPress={handleAddToCart}
                 >
                     <Ionicons name="cart-outline" size={20} color="#fff" />
                     <Text style={styles.cartText}>Thêm vào giỏ hàng</Text>
                 </TouchableOpacity>
-
             </View>
         </ScrollView>
     );
@@ -160,10 +168,6 @@ const styles = StyleSheet.create({
     ratingText: {
         fontWeight: 'bold',
         fontSize: 14,
-    },
-    reviewCount: {
-        fontSize: 13,
-        color: '#555',
     },
     description: {
         fontSize: 13,
