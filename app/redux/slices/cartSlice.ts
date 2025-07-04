@@ -8,6 +8,7 @@ interface CartItem {
     price: number;
     quantity: number;
     size: string;
+    userId: string; // ✅ Thêm userId để phân biệt
 }
 
 interface CartState {
@@ -23,8 +24,9 @@ const cartSlice = createSlice({
     initialState,
     reducers: {
         addToCart(state, action: PayloadAction<CartItem>) {
+            const { id, size, userId } = action.payload;
             const existing = state.items.find(
-                item => item.id === action.payload.id && item.size === action.payload.size
+                item => item.id === id && item.size === size && item.userId === userId
             );
             if (existing) {
                 existing.quantity += action.payload.quantity;
@@ -32,15 +34,19 @@ const cartSlice = createSlice({
                 state.items.push(action.payload);
             }
         },
-        removeFromCart(state, action: PayloadAction<string>) {
-            state.items = state.items.filter(item => item.id !== action.payload);
+        removeFromCart(state, action: PayloadAction<{ id: string; userId: string }>) {
+            state.items = state.items.filter(
+                item => !(item.id === action.payload.id && item.userId === action.payload.userId)
+            );
         },
-        updateQuantity(state, action: PayloadAction<{ id: string; quantity: number }>) {
-            const item = state.items.find(item => item.id === action.payload.id);
+        updateQuantity(state, action: PayloadAction<{ id: string; quantity: number; userId: string }>) {
+            const item = state.items.find(
+                item => item.id === action.payload.id && item.userId === action.payload.userId
+            );
             if (item) item.quantity = action.payload.quantity;
         },
-        clearCart(state) {
-            state.items = [];
+        clearCart(state, action: PayloadAction<string>) {
+            state.items = state.items.filter(item => item.userId !== action.payload);
         },
     },
 });

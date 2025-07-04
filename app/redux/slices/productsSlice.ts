@@ -24,6 +24,7 @@ const initialState: ProductsState = {
 // ⏬ Fetch API trong thunk
 export const fetchProducts = createAsyncThunk<Product[]>('products/fetch', async () => {
   const res = await fetch('http://192.168.1.13:3000/products');
+
   if (!res.ok) throw new Error('Failed to fetch');
   return await res.json();
 });

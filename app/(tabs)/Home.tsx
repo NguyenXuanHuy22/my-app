@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { fetchProducts, selectProducts } from '../redux/slices/productsSlice';
 import { useAppDispatch, useAppSelector } from '../redux/store';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Product {
   id: string;
@@ -84,6 +85,23 @@ const HomeScreen = () => {
           contentContainerStyle={{ paddingBottom: 16 }}
         />
       )}
+      <View style={styles.bottomMenu}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/Home')}>
+          <Ionicons name="home" size={24} color="black" />
+          <Text style={styles.menuText}>Home</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/cart')}>
+          <Ionicons name="cart-outline" size={24} color="black" />
+          <Text style={styles.menuText}>Cart</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/profile')}>
+          <Ionicons name="person-outline" size={24} color="black" />
+          <Text style={styles.menuText}>Account</Text>
+        </TouchableOpacity>
+      </View>
+
     </View>
   );
 };
@@ -141,6 +159,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 20,
     color: '#888',
+  },
+  bottomMenu: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderColor: '#ddd',
+    paddingVertical: 10,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+  },
+  menuItem: {
+    alignItems: 'center',
+  },
+  menuText: {
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 
