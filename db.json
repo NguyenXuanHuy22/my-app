@@ -91,7 +91,14 @@
     },
     {
       "id": "qU4gw9zT",
-      "items": [],
+      "items": [
+        {
+          "productId": "1",
+          "image": "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/April2025/ao-singlet-chay-bo-advanced-vent-techgraphic-camo-448do-nau_74.jpg",
+          "name": "Bộ bóng đá Kamito Prematch HAGL",
+          "price": 359000
+        }
+      ],
       "userId": "k3osGIKG"
     },
     {
@@ -134,11 +141,37 @@
     {
       "id": "NsLpwL8V",
       "userId": "QZsU2tCy",
-      "items": []
+      "items": [
+        {
+          "productId": "2",
+          "name": "T-shirt thể thao nam Promax Sideflow V-neck",
+          "image": "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/May2025/t-shirt-the-thao-nam-promax-sideflow-v-neck-1-xanh-bong-dem_18.jpg",
+          "price": 200000,
+          "size": "M",
+          "quantity": 1
+        },
+        {
+          "productId": "4",
+          "name": "Bộ bóng đá Kamito TL79",
+          "image": "https://product.hstatic.net/1000341630/product/kamito14024_32e3bcc59c3b4ce28e4badf99212632a_master.jpg",
+          "price": 299000,
+          "size": "M",
+          "quantity": 1
+        }
+      ]
     },
     {
       "id": "sxMjttb5",
-      "items": [],
+      "items": [
+        {
+          "productId": "2",
+          "name": "T-shirt thể thao nam Promax Sideflow V-neck",
+          "image": "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/May2025/t-shirt-the-thao-nam-promax-sideflow-v-neck-1-xanh-bong-dem_18.jpg",
+          "price": 200000,
+          "size": "S",
+          "quantity": 1
+        }
+      ],
       "userId": "k3osGIKG"
     },
     {
