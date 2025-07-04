@@ -53,6 +53,15 @@
       "password": "123456",
       "address": "Ba vi",
       "role": "user"
+    },
+    {
+      "id": "e30j2m7p",
+      "name": "huy nè",
+      "email": "huycoi12@gmail.com",
+      "phone": "0987472464",
+      "password": "12345678",
+      "address": "hưng yên",
+      "role": "user"
     }
   ],
   "wishlists": [
@@ -99,6 +108,11 @@
       "id": "az3f1agb",
       "userId": "5kcpbr36",
       "items": []
+    },
+    {
+      "id": "qysiu1pz",
+      "userId": "e30j2m7p",
+      "items": []
     }
   ],
   "carts": [
@@ -140,6 +154,11 @@
     {
       "id": "o8u6pchi",
       "userId": "5kcpbr36",
+      "items": []
+    },
+    {
+      "id": "52myhnuy",
+      "userId": "e30j2m7p",
       "items": []
     }
   ],
@@ -194,6 +213,13 @@
     {
       "id": "tvokougl",
       "userId": "5kcpbr36",
+      "status": "Chưa có đơn hàng",
+      "total": 0,
+      "items": []
+    },
+    {
+      "id": "n5jj9g8m",
+      "userId": "e30j2m7p",
       "status": "Chưa có đơn hàng",
       "total": 0,
       "items": []

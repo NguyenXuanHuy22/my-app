@@ -1,24 +1,27 @@
 // app/splash.tsx
 
-import { useRouter } from 'expo-router'; // ✅ Đúng hook để điều hướng
+import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StatusBar, StyleSheet, View } from 'react-native';
 
 const SplashScreen = () => {
-  const router = useRouter(); // ✅ Gọi đúng hook
+  const router = useRouter();
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      router.replace('/(tabs)/Register'); // ✅ Chuyển về màn hình chính (index.tsx hoặc (tabs)/index.tsx)
+      router.replace('/(tabs)/Login');
     }, 3000);
-
     return () => clearTimeout(timeout);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Chào mừng bạn!</Text>
-      {/* <ActivityIndicator size="large" color="#0000ff" /> */}
+      <StatusBar hidden />
+      <Image
+        source={{ uri: 'https://i.pinimg.com/736x/ec/ba/43/ecba431d918574070666a2130248f535.jpg' }}
+        style={styles.image}
+        resizeMode="contain"
+      />
     </View>
   );
 };
@@ -28,11 +31,12 @@ export default SplashScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff', // Nền trắng hoặc màu thương hiệu
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20
-  }
+  image: {
+    width: '80%',   // Co giãn theo kích thước màn hình
+    height: '50%',  // Hoặc bạn có thể chỉnh lại nếu muốn hình đầy màn
+  },
 });
