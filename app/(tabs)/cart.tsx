@@ -135,6 +135,16 @@ export default function CartScreen() {
                     keyExtractor={(item, index) => item.id + index}
                     renderItem={({ item }) => (
                         <View style={styles.itemRow}>
+                            {/* Nút chọn hình tròn */}
+                            <TouchableOpacity onPress={() => toggleSelectItem(item.id)}>
+                                <View
+                                    style={[
+                                        styles.circle,
+                                        selectedItems.includes(item.id) && styles.circleSelected,
+                                    ]}
+                                />
+                            </TouchableOpacity>
+
                             <Image source={{ uri: item.image }} style={styles.image} />
                             <View style={styles.info}>
                                 <Text style={styles.name}>{item.name}</Text>
@@ -166,6 +176,7 @@ export default function CartScreen() {
                             </TouchableOpacity>
                         </View>
                     )}
+
                     contentContainerStyle={{ paddingBottom: 180 }}
                 />
 
