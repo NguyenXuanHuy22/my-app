@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
+    Alert,
     FlatList,
     Image,
     StyleSheet,
@@ -8,25 +10,116 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import {
-    removeFromCart,
-    updateQuantity,
-} from '../redux/slices/cartSlice';
+import { removeFromCart, setCart, updateQuantity } from '../redux/slices/cartSlice';
 import { useAppDispatch, useAppSelector } from '../redux/store';
 
 export default function CartScreen() {
     const dispatch = useAppDispatch();
     const router = useRouter();
-
     const currentUser = useAppSelector(state => state.auth.currentUser);
+
+    const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
     const cartItems = useAppSelector(state =>
         state.cart.items.filter(item => item.userId === currentUser?.id)
     );
 
-    const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shipping = 800;
+    // ✅ Tính tổng tiền chỉ với sản phẩm được chọn
+    const total = cartItems
+        .filter(item => selectedItems.includes(item.id))
+        .reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const shipping = total > 0 ? 800 : 0;
     const grandTotal = total + shipping;
+
+    // ✅ Load giỏ hàng từ db.json khi user thay đổi
+    useEffect(() => {
+        const fetchCart = async () => {
+            if (currentUser) {
+                try {
+                    const response = await fetch(`http://localhost:3000/carts?userId=${currentUser.id}`);
+                    const carts = await response.json();
+                    const userCart = carts[0] || { items: [] };
+
+                    const normalizedItems = userCart.items.map((item: any) => ({
+                        id: item.productId || item.id,
+                        name: item.name,
+                        image: item.image,
+                        price: item.price,
+                        quantity: item.quantity,
+                        size: item.size,
+                        userId: currentUser.id,
+                    }));
+
+                    dispatch(setCart(normalizedItems));
+                } catch (error) {
+                    console.error('Lỗi khi lấy giỏ hàng:', error);
+                }
+            } else {
+                dispatch(setCart([]));
+            }
+        };
+        fetchCart();
+    }, [currentUser, dispatch]);
+
+    const handleUpdateQuantity = async (productId: string, newQty: number) => {
+        if (!currentUser) return;
+
+        try {
+            const response = await fetch(`http://localhost:3000/carts?userId=${currentUser.id}`);
+            const carts = await response.json();
+            const userCart = carts[0];
+
+            if (userCart) {
+                const updatedItems = userCart.items.map((item: any) =>
+                    item.productId === productId ? { ...item, quantity: newQty } : item
+                );
+
+                await fetch(`http://localhost:3000/carts/${userCart.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...userCart, items: updatedItems }),
+                });
+
+                dispatch(updateQuantity({ id: productId, quantity: newQty, userId: currentUser.id }));
+            }
+        } catch (error) {
+            console.error('Lỗi khi cập nhật số lượng:', error);
+            Alert.alert('Lỗi', 'Không thể cập nhật số lượng');
+        }
+    };
+
+
+    // ✅ Xử lý tích chọn
+    const toggleSelectItem = (productId: string) => {
+        setSelectedItems(prev =>
+            prev.includes(productId)
+                ? prev.filter(id => id !== productId)
+                : [...prev, productId]
+        );
+    };
+
+    // ✅ Xử lý xóa sản phẩm
+    const handleRemoveFromCart = async (productId: string, userId: string) => {
+        try {
+            const response = await fetch(`http://localhost:3000/carts?userId=${userId}`);
+            const carts = await response.json();
+            const userCart = carts[0];
+
+            if (userCart) {
+                userCart.items = userCart.items.filter((item: any) => item.productId !== productId);
+                await fetch(`http://localhost:3000/carts/${userCart.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userCart),
+                });
+                dispatch(removeFromCart({ id: productId, userId }));
+                setSelectedItems(prev => prev.filter(id => id !== productId));
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa sản phẩm:', error);
+            Alert.alert('Lỗi', 'Không thể xóa sản phẩm khỏi giỏ hàng');
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -50,13 +143,7 @@ export default function CartScreen() {
                                 <View style={styles.qtyRow}>
                                     <TouchableOpacity
                                         onPress={() =>
-                                            dispatch(
-                                                updateQuantity({
-                                                    id: item.id,
-                                                    quantity: item.quantity - 1,
-                                                    userId: currentUser?.id || '',
-                                                })
-                                            )
+                                            handleUpdateQuantity(item.id, item.quantity - 1)
                                         }
                                         disabled={item.quantity <= 1}
                                     >
@@ -65,13 +152,7 @@ export default function CartScreen() {
                                     <Text>{item.quantity}</Text>
                                     <TouchableOpacity
                                         onPress={() =>
-                                            dispatch(
-                                                updateQuantity({
-                                                    id: item.id,
-                                                    quantity: item.quantity + 1,
-                                                    userId: currentUser?.id || '',
-                                                })
-                                            )
+                                            handleUpdateQuantity(item.id, item.quantity + 1)
                                         }
                                     >
                                         <Text style={styles.qtyBtn}>+</Text>
@@ -79,34 +160,36 @@ export default function CartScreen() {
                                 </View>
                             </View>
                             <TouchableOpacity
-                                onPress={() =>
-                                    dispatch(
-                                        removeFromCart({
-                                            id: item.id,
-                                            userId: currentUser?.id || '',
-                                        })
-                                    )
-                                }
+                                onPress={() => handleRemoveFromCart(item.id, currentUser?.id || '')}
                             >
                                 <Ionicons name="trash-outline" size={24} color="red" />
                             </TouchableOpacity>
                         </View>
                     )}
-                    contentContainerStyle={{ paddingBottom: 180 }} // 👈 tránh bị che
+                    contentContainerStyle={{ paddingBottom: 180 }}
                 />
+
             )}
 
+            {/* Tổng tiền */}
             {cartItems.length > 0 && (
-                <View style={[styles.totalBox, { marginBottom: 80 }]}> {/* 👈 đẩy lên */}
-                    <Text>Tổng tiền: {total.toLocaleString()} VND</Text>
-                    <Text>Phí vận chuyển: {shipping.toLocaleString()} VND</Text>
+                <View style={[styles.totalBox, { marginBottom: 80 }]}>
+                    <Text>Tạm tính: {total.toLocaleString()} VND</Text>
                     <Text style={styles.grandTotal}>Tổng: {grandTotal.toLocaleString()} VND</Text>
-                    <TouchableOpacity style={styles.orderBtn}>
+                    <TouchableOpacity
+                        style={[
+                            styles.orderBtn,
+                            selectedItems.length === 0 && { backgroundColor: '#ccc' },
+                        ]}
+                        disabled={selectedItems.length === 0}
+                        onPress={() => Alert.alert('Đặt hàng', 'Chức năng đang phát triển')}
+                    >
                         <Text style={styles.orderText}>Đặt hàng →</Text>
                     </TouchableOpacity>
                 </View>
             )}
 
+            {/* Menu dưới */}
             <View style={styles.bottomMenu}>
                 <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/Home')}>
                     <Ionicons name="home-outline" size={24} color="black" />
@@ -132,12 +215,22 @@ const styles = StyleSheet.create({
     title: { fontSize: 22, fontWeight: 'bold', marginBottom: 12 },
     itemRow: {
         flexDirection: 'row',
-        gap: 10,
         alignItems: 'center',
         backgroundColor: '#f9f9f9',
         borderRadius: 8,
         padding: 10,
         marginBottom: 12,
+    },
+    circle: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#888',
+        marginRight: 10,
+    },
+    circleSelected: {
+        backgroundColor: '#000',
     },
     image: { width: 60, height: 60, borderRadius: 8 },
     info: { flex: 1 },
