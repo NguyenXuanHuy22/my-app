@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+
 import { useEffect, useState } from 'react';
 import {
     Alert,
@@ -16,7 +17,7 @@ import { useAppDispatch, useAppSelector } from '../redux/store';
 export default function CartScreen() {
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const currentUser = useAppSelector(state => state.auth.currentUser);
+    const currentUser = useAppSelector(state => state.auth.user);
 
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
@@ -193,7 +194,13 @@ export default function CartScreen() {
                             selectedItems.length === 0 && { backgroundColor: '#ccc' },
                         ]}
                         disabled={selectedItems.length === 0}
-                        onPress={() => Alert.alert('Đặt hàng', 'Chức năng đang phát triển')}
+                        onPress={() =>
+                            router.push({
+                                pathname: '/checkout',
+                                params: { selected: JSON.stringify(selectedItems) },
+                            })
+                        }
+
                     >
                         <Text style={styles.orderText}>Đặt hàng →</Text>
                     </TouchableOpacity>
@@ -212,16 +219,18 @@ export default function CartScreen() {
                     <Text style={styles.menuText}>Cart</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.menuItem} onPress={() => router.push('./(tabs)/profile')}>
+                <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/AccountScreen')}>
                     <Ionicons name="person-outline" size={24} color="black" />
                     <Text style={styles.menuText}>Account</Text>
                 </TouchableOpacity>
             </View>
+
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+
     container: { flex: 1, padding: 16, backgroundColor: '#fff' },
     title: { fontSize: 22, fontWeight: 'bold', marginBottom: 12 },
     itemRow: {
