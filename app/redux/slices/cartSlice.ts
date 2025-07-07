@@ -8,7 +8,7 @@ interface CartItem {
     price: number;
     quantity: number;
     size: string;
-    userId: string; // ✅ Thêm userId để phân biệt
+    userId: string;
 }
 
 interface CartState {
@@ -48,8 +48,11 @@ const cartSlice = createSlice({
         clearCart(state, action: PayloadAction<string>) {
             state.items = state.items.filter(item => item.userId !== action.payload);
         },
+        setCart(state, action: PayloadAction<CartItem[]>) {
+            state.items = action.payload;
+        },
     },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, updateQuantity, clearCart, setCart } = cartSlice.actions;
 export default cartSlice.reducer;

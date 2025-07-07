@@ -18,35 +18,82 @@ const sizes = ['S', 'M', 'L'];
 
 export default function ProductDetailScreen() {
     const router = useRouter();
-    const { id } = useLocalSearchParams(); // ✅ Lấy id từ URL
-
+    const { id } = useLocalSearchParams();
     const product = useAppSelector(selectProductById(id as string));
     const [selectedSize, setSelectedSize] = useState('M');
     const [isFavorite, setIsFavorite] = useState(false);
-    const currentUser = useAppSelector(state => state.auth.currentUser);
+    const currentUser = useAppSelector(state => state.auth.user); // Sửa lại đúng theo tên state
     const dispatch = useAppDispatch();
 
     if (!product) return <Text style={{ padding: 20 }}>Không tìm thấy sản phẩm</Text>;
 
-    const handleAddToCart = () => {
+    const handleAddToCart = async () => {
         if (!currentUser) {
-            Alert.alert("Vui lòng đăng nhập", "Bạn cần đăng nhập để thêm vào giỏ hàng");
+            Alert.alert('Vui lòng đăng nhập', 'Bạn cần đăng nhập để thêm vào giỏ hàng');
             return;
         }
 
-        dispatch(
-            addToCart({
-                id: product.id,
-                name: product.name,
-                image: product.image,
-                price: product.price,
-                size: selectedSize,
-                quantity: 1,
-                userId: currentUser.id,
-            })
-        );
+        const cartItem = {
+            id: product.id, // Chính là product.id (dùng làm key để kiểm tra trong Redux)
+            name: product.name,
+            image: product.image,
+            price: product.price,
+            size: selectedSize,
+            quantity: 1,
+            userId: currentUser.id,
+        };
 
-        router.push('/cart'); // 👉 chuyển sang giỏ hàng
+        try {
+            // Gọi tới DB để cập nhật giỏ hàng
+            const response = await fetch(`http://localhost:3000/carts?userId=${currentUser.id}`);
+            const carts = await response.json();
+            const userCart = carts[0];
+
+            if (userCart) {
+                const existingItem = userCart.items.find(
+                    (item: any) => item.productId === cartItem.id && item.size === cartItem.size
+                );
+
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    userCart.items.push({
+                        ...cartItem,
+                        productId: cartItem.id, // để lưu đúng trong db.json
+                    });
+                }
+
+                await fetch(`http://localhost:3000/carts/${userCart.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userCart),
+                });
+            } else {
+                // Tạo giỏ hàng mới nếu chưa có
+                const newCart = {
+                    userId: currentUser.id,
+                    items: [
+                        {
+                            ...cartItem,
+                            productId: cartItem.id,
+                        },
+                    ],
+                };
+
+                await fetch(`http://localhost:3000/carts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newCart),
+                });
+            }
+
+            // Cập nhật Redux
+            dispatch(addToCart(cartItem));
+            router.push('/cart');
+        } catch (error) {
+            console.error('Lỗi khi thêm vào giỏ hàng:', error);
+            Alert.alert('Lỗi', 'Không thể thêm sản phẩm vào giỏ hàng');
+        }
     };
 
     return (
@@ -81,13 +128,13 @@ export default function ProductDetailScreen() {
             {/* Rating */}
             <View style={styles.ratingRow}>
                 <Text style={styles.star}>⭐</Text>
-                <Text style={styles.ratingText}>4.0/5 </Text>
+                <Text style={styles.ratingText}>4.0/5</Text>
             </View>
 
             {/* Description */}
             <Text style={styles.description}>{product.description}</Text>
 
-            {/* Size */}
+            {/* Size selection */}
             <Text style={styles.sectionTitle}>Chọn size</Text>
             <View style={styles.sizeContainer}>
                 {sizes.map((size) => (
@@ -105,11 +152,8 @@ export default function ProductDetailScreen() {
 
             {/* Footer */}
             <View style={styles.footer}>
-                <Text style={styles.price}>{product.price} VND</Text>
-                <TouchableOpacity
-                    style={styles.cartButton}
-                    onPress={handleAddToCart}
-                >
+                <Text style={styles.price}>{product.price.toLocaleString()} VND</Text>
+                <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
                     <Ionicons name="cart-outline" size={20} color="#fff" />
                     <Text style={styles.cartText}>Thêm vào giỏ hàng</Text>
                 </TouchableOpacity>

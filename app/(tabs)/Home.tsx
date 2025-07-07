@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -11,7 +12,6 @@ import {
 } from 'react-native';
 import { fetchProducts, selectProducts } from '../redux/slices/productsSlice';
 import { useAppDispatch, useAppSelector } from '../redux/store';
-import { Ionicons } from '@expo/vector-icons';
 
 interface Product {
   id: string;
@@ -62,7 +62,6 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.searchBarContainer}>
-        <Text style={styles.title}>Sản phẩm</Text>
         <TextInput
           placeholder="Tìm sản phẩm..."
           style={styles.searchInput}
@@ -96,7 +95,7 @@ const HomeScreen = () => {
           <Text style={styles.menuText}>Cart</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/profile')}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/AccountScreen')}>
           <Ionicons name="person-outline" size={24} color="black" />
           <Text style={styles.menuText}>Account</Text>
         </TouchableOpacity>

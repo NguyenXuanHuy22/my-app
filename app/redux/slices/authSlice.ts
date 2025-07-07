@@ -15,13 +15,13 @@ export interface User {
 // 👉 Interface AuthState
 interface AuthState {
   users: User[];
-  currentUser: User | null;
+  user: User | null;
   loading: boolean;
   error: string | null;
 }
 
 
-const API = 'http://192.168.1.13:3000'; // Sử dụng IP LAN nếu dùng thiết bị thật
+const API = 'http://192.168.1.10:3000'; // Sử dụng IP LAN nếu dùng thiết bị thật
 
 
 // ✅ Hàm tạo ID ngẫu nhiên
@@ -91,7 +91,7 @@ export const loginUser = createAsyncThunk<User, { email: string; password: strin
 // ✅ Initial State
 const initialState: AuthState = {
   users: [],
-  currentUser: null,
+  user: null,
   loading: false,
   error: null,
 };
@@ -102,7 +102,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout(state) {
-      state.currentUser = null;
+      state.user = null;
     },
   },
   extraReducers: (builder) => {
@@ -143,7 +143,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action: PayloadAction<User>) => {
         state.loading = false;
-        state.currentUser = action.payload;
+        state.user = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
