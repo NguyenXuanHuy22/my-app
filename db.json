@@ -170,6 +170,14 @@
           "price": 200000,
           "size": "S",
           "quantity": 1
+        },
+        {
+          "productId": "4",
+          "name": "Bộ bóng đá Kamito TL79",
+          "image": "https://product.hstatic.net/1000341630/product/kamito14024_32e3bcc59c3b4ce28e4badf99212632a_master.jpg",
+          "price": 299000,
+          "size": "L",
+          "quantity": 1
         }
       ],
       "userId": "k3osGIKG"
