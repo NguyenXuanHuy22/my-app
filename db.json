@@ -3,7 +3,7 @@
     {
       "id": "1",
       "name": "Nguyễn Văn A",
-      "email": "vana@example.com",
+      "email": "admin@gmail.com",
       "phone": "0987654321",
       "password": "123456",
       "address": "Hà Nội",
@@ -147,14 +147,6 @@
           "name": "T-shirt thể thao nam Promax Sideflow V-neck",
           "image": "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/May2025/t-shirt-the-thao-nam-promax-sideflow-v-neck-1-xanh-bong-dem_18.jpg",
           "price": 200000,
-          "size": "M",
-          "quantity": 1
-        },
-        {
-          "productId": "4",
-          "name": "Bộ bóng đá Kamito TL79",
-          "image": "https://product.hstatic.net/1000341630/product/kamito14024_32e3bcc59c3b4ce28e4badf99212632a_master.jpg",
-          "price": 299000,
           "size": "M",
           "quantity": 1
         }

@@ -95,7 +95,7 @@ const HomeScreen = () => {
           <Text style={styles.menuText}>Cart</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('./(tabs)/profile')}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/AccountScreen')}>
           <Ionicons name="person-outline" size={24} color="black" />
           <Text style={styles.menuText}>Account</Text>
         </TouchableOpacity>
