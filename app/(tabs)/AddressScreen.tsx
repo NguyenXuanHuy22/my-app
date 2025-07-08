@@ -1,9 +1,13 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    View, Text, TextInput, StyleSheet, TouchableOpacity, Alert,
+    Alert,
+    StyleSheet,
+    Text, TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppSelector } from '../redux/store';
 
 export default function AddressScreen() {
@@ -31,7 +35,7 @@ export default function AddressScreen() {
             if (!currentUser) return;
             await AsyncStorage.setItem(`user_address_${currentUser.id}`, address);
             Alert.alert('Thành công', 'Địa chỉ đã lưu!');
-            router.replace('/checkout');
+            router.replace('./checkout');
         } catch (err) {
             Alert.alert('Lỗi', 'Không thể lưu địa chỉ');
         }

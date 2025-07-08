@@ -20,12 +20,19 @@ export default function ProductDetailScreen() {
     const router = useRouter();
     const { id } = useLocalSearchParams();
     const product = useAppSelector(selectProductById(id as string));
-    const [selectedSize, setSelectedSize] = useState('M');
-    const [isFavorite, setIsFavorite] = useState(false);
-    const currentUser = useAppSelector(state => state.auth.user); // Sửa lại đúng theo tên state
+    const currentUser = useAppSelector((state) => state.auth.user);
     const dispatch = useAppDispatch();
 
-    if (!product) return <Text style={{ padding: 20 }}>Không tìm thấy sản phẩm</Text>;
+    const [selectedSize, setSelectedSize] = useState('M');
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    if (!product) {
+        return (
+            <View style={styles.container}>
+                <Text>Không tìm thấy sản phẩm.</Text>
+            </View>
+        );
+    }
 
     const handleAddToCart = async () => {
         if (!currentUser) {
@@ -34,7 +41,7 @@ export default function ProductDetailScreen() {
         }
 
         const cartItem = {
-            id: product.id, // Chính là product.id (dùng làm key để kiểm tra trong Redux)
+            id: product.id,
             name: product.name,
             image: product.image,
             price: product.price,
@@ -44,14 +51,17 @@ export default function ProductDetailScreen() {
         };
 
         try {
+
             // Gọi tới DB để cập nhật giỏ hàng
             const response = await fetch(`http://192.168.1.10:3000/carts?userId=${currentUser.id}`);
+
             const carts = await response.json();
             const userCart = carts[0];
 
             if (userCart) {
                 const existingItem = userCart.items.find(
-                    (item: any) => item.productId === cartItem.id && item.size === cartItem.size
+                    (item: any) =>
+                        item.productId === cartItem.id && item.size === cartItem.size
                 );
 
                 if (existingItem) {
@@ -59,7 +69,7 @@ export default function ProductDetailScreen() {
                 } else {
                     userCart.items.push({
                         ...cartItem,
-                        productId: cartItem.id, // để lưu đúng trong db.json
+                        productId: cartItem.id,
                     });
                 }
 
@@ -69,7 +79,6 @@ export default function ProductDetailScreen() {
                     body: JSON.stringify(userCart),
                 });
             } else {
-                // Tạo giỏ hàng mới nếu chưa có
                 const newCart = {
                     userId: currentUser.id,
                     items: [
@@ -87,7 +96,6 @@ export default function ProductDetailScreen() {
                 });
             }
 
-            // Cập nhật Redux
             dispatch(addToCart(cartItem));
             router.push('/cart');
         } catch (error) {
@@ -98,21 +106,11 @@ export default function ProductDetailScreen() {
 
     return (
         <ScrollView style={styles.container}>
-            {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.replace('/Home')}>
-                    <Ionicons name="arrow-back" size={24} />
+                <TouchableOpacity onPress={() => router.replace('/(tabs)/Home')}>
+                    <Ionicons name="arrow-back" size={24} color="black" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Sản phẩm</Text>
-                <View style={{ width: 24 }} />
-            </View>
-
-            {/* Image */}
-            <Image source={{ uri: product.image }} style={styles.productImage} />
-
-            {/* Name + Favorite */}
-            <View style={styles.nameRow}>
-                <Text style={styles.productName}>{product.name}</Text>
+                <Text style={styles.headerTitle}>Chi tiết sản phẩm</Text>
                 <TouchableOpacity
                     style={styles.favoriteBtn}
                     onPress={() => setIsFavorite(!isFavorite)}
@@ -125,32 +123,43 @@ export default function ProductDetailScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Rating */}
+            <Image source={{ uri: product.image }} style={styles.productImage} />
+
+            <View style={styles.nameRow}>
+                <Text style={styles.productName}>{product.name}</Text>
+            </View>
+
             <View style={styles.ratingRow}>
                 <Text style={styles.star}>⭐</Text>
                 <Text style={styles.ratingText}>4.0/5</Text>
             </View>
 
-            {/* Description */}
             <Text style={styles.description}>{product.description}</Text>
 
-            {/* Size selection */}
             <Text style={styles.sectionTitle}>Chọn size</Text>
             <View style={styles.sizeContainer}>
                 {sizes.map((size) => (
                     <TouchableOpacity
                         key={size}
-                        style={[styles.sizeBox, selectedSize === size && styles.sizeBoxSelected]}
+                        style={[
+                            styles.sizeBox,
+                            selectedSize === size && styles.sizeBoxSelected,
+                        ]}
                         onPress={() => setSelectedSize(size)}
                     >
-                        <Text style={selectedSize === size ? styles.sizeTextSelected : styles.sizeText}>
+                        <Text
+                            style={
+                                selectedSize === size
+                                    ? styles.sizeTextSelected
+                                    : styles.sizeText
+                            }
+                        >
                             {size}
                         </Text>
                     </TouchableOpacity>
                 ))}
             </View>
 
-            {/* Footer */}
             <View style={styles.footer}>
                 <Text style={styles.price}>{product.price.toLocaleString()} VND</Text>
                 <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>

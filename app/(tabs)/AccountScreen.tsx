@@ -1,23 +1,24 @@
 import {
-    AntDesign,
-    Feather,
-    Ionicons,
-    MaterialCommunityIcons,
-    MaterialIcons,
+  AntDesign,
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store'; // đường dẫn tùy dự án của bạn
 
 const AccountScreen = () => {
+
     const router = useRouter();
     const user = useSelector((state: RootState) => state.auth.user);
     const role = user?.role;
@@ -128,6 +129,7 @@ const AccountScreen = () => {
 export default AccountScreen;
 
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
         backgroundColor: '#fff',

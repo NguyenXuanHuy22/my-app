@@ -1,12 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-    View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Modal,
-} from 'react-native';
-import { useAppSelector } from '../redux/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useState, useCallback } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import {
+    Image,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import { useAppSelector } from '../redux/store';
 
 
 export default function CheckoutScreen() {
@@ -88,7 +94,7 @@ export default function CheckoutScreen() {
                         <Text>Nhà</Text>
                         <Text>{address || 'Chưa có địa chỉ'}</Text>
                     </View>
-                    <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={() => router.push('/AddressScreen')}>
+                    <TouchableOpacity style={{ marginLeft: 'auto' }} onPress={() => router.push('./AddressScreen')}>
                         <Text style={styles.addText}>Thêm</Text>
                     </TouchableOpacity>
                 </View>

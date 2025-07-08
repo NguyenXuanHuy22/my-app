@@ -1,3 +1,4 @@
+// redux/slices/productsSlice.ts
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
@@ -6,7 +7,9 @@ export interface Product {
   name: string;
   price: number;
   image: string;
-  description: string
+  description: string;
+  category: string;
+  sizes: string[];
 }
 
 interface ProductsState {
@@ -21,12 +24,42 @@ const initialState: ProductsState = {
   error: null,
 };
 
-// ⏬ Fetch API trong thunk
-export const fetchProducts = createAsyncThunk<Product[]>('products/fetch', async () => {
-  const res = await fetch('http://192.168.1.10:3000/products');
+const API_URL = 'http://192.168.1.13:3000/products';
 
+// Fetch all
+export const fetchProducts = createAsyncThunk<Product[]>('products/fetch', async () => {
+  const res = await fetch(API_URL);
   if (!res.ok) throw new Error('Failed to fetch');
   return await res.json();
+});
+
+// Add product
+export const addProduct = createAsyncThunk<Product, Product>('products/add', async (product) => {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(product),
+  });
+  if (!res.ok) throw new Error('Failed to add product');
+  return await res.json();
+});
+
+// Update product
+export const updateProduct = createAsyncThunk<Product, Product>('products/update', async (product) => {
+  const res = await fetch(`${API_URL}/${product.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(product),
+  });
+  if (!res.ok) throw new Error('Failed to update product');
+  return await res.json();
+});
+
+// Delete product
+export const deleteProduct = createAsyncThunk<string, string>('products/delete', async (id) => {
+  const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete product');
+  return id;
 });
 
 const productsSlice = createSlice({
@@ -46,12 +79,24 @@ const productsSlice = createSlice({
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Error';
+      })
+
+      .addCase(addProduct.fulfilled, (state, action) => {
+        state.products.push(action.payload);
+      })
+
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        const index = state.products.findIndex(p => p.id === action.payload.id);
+        if (index !== -1) state.products[index] = action.payload;
+      })
+
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.products = state.products.filter(p => p.id !== action.payload);
       });
   },
 });
 
 export default productsSlice.reducer;
 export const selectProducts = (state: RootState) => state.products.products;
-
 export const selectProductById = (id: string) => (state: RootState) =>
   state.products.products.find(product => product.id === id);
