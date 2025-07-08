@@ -15,14 +15,20 @@ export default function AddressScreen() {
     const [address, setAddress] = useState('');
     const currentUser = useAppSelector(state => state.auth.user);
 
-    // Load địa chỉ đã lưu trước đó
     useEffect(() => {
-        const loadAddress = async () => {
+        const fetchAddress = async () => {
             if (!currentUser) return;
-            const saved = await AsyncStorage.getItem(`user_address_${currentUser.id}`);
-            if (saved) setAddress(saved);
+
+            try {
+                const res = await fetch(`http://192.168.1.10:3000/users/${currentUser.id}`);
+                const user = await res.json();
+                setAddress(user.address || '');
+            } catch (err) {
+                console.error('Lỗi lấy địa chỉ:', err);
+            }
         };
-        loadAddress();
+
+        fetchAddress();
     }, [currentUser]);
 
     const handleSaveAddress = async () => {
@@ -31,15 +37,28 @@ export default function AddressScreen() {
             return;
         }
 
+        if (!currentUser) return;
+
         try {
-            if (!currentUser) return;
-            await AsyncStorage.setItem(`user_address_${currentUser.id}`, address);
+            const updatedUser = {
+                ...currentUser,
+                address: address,
+            };
+
+            await fetch(`http://192.168.1.10:3000/users/${currentUser.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedUser),
+            });
+
             Alert.alert('Thành công', 'Địa chỉ đã lưu!');
-            router.replace('./checkout');
+            router.replace('/checkout'); // Quay về màn hình thanh toán
         } catch (err) {
+            console.error('Lỗi cập nhật địa chỉ:', err);
             Alert.alert('Lỗi', 'Không thể lưu địa chỉ');
         }
     };
+
 
     return (
         <View style={styles.container}>

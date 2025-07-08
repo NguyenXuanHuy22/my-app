@@ -34,14 +34,23 @@ export default function CheckoutScreen() {
     // Khi màn hình được focus lại (quay lại từ AddressScreen)
     useFocusEffect(
         useCallback(() => {
-            const loadAddress = async () => {
+            const fetchUserAddress = async () => {
                 if (!currentUser) return;
-                const saved = await AsyncStorage.getItem(`user_address_${currentUser.id}`);
-                if (saved) setAddress(saved);
+
+                try {
+                    const response = await fetch(`http://192.168.1.10:3000/users/${currentUser.id}`);
+                    const userData = await response.json();
+                    setAddress(userData.address || '');
+                } catch (error) {
+                    console.error('Lỗi khi lấy địa chỉ:', error);
+                    setAddress(''); // fallback
+                }
             };
-            loadAddress();
+
+            fetchUserAddress();
         }, [currentUser])
     );
+
 
     const handlePlaceOrder = async () => {
         try {
