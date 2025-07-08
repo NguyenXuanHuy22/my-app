@@ -45,7 +45,7 @@ export default function ProductDetailScreen() {
 
         try {
             // Gọi tới DB để cập nhật giỏ hàng
-            const response = await fetch(`http://localhost:3000/carts?userId=${currentUser.id}`);
+            const response = await fetch(`http://192.168.1.10:3000/carts?userId=${currentUser.id}`);
             const carts = await response.json();
             const userCart = carts[0];
 
@@ -63,7 +63,7 @@ export default function ProductDetailScreen() {
                     });
                 }
 
-                await fetch(`http://localhost:3000/carts/${userCart.id}`, {
+                await fetch(`http://192.168.1.10:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userCart),
@@ -80,7 +80,7 @@ export default function ProductDetailScreen() {
                     ],
                 };
 
-                await fetch(`http://localhost:3000/carts`, {
+                await fetch(`http://192.168.1.10:3000/carts`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newCart),

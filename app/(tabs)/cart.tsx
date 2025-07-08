@@ -37,7 +37,7 @@ export default function CartScreen() {
         const fetchCart = async () => {
             if (currentUser) {
                 try {
-                    const response = await fetch(`http://localhost:3000/carts?userId=${currentUser.id}`);
+                    const response = await fetch(`http://192.168.1.10:3000/carts?userId=${currentUser.id}`);
                     const carts = await response.json();
                     const userCart = carts[0] || { items: [] };
 
@@ -66,7 +66,7 @@ export default function CartScreen() {
         if (!currentUser) return;
 
         try {
-            const response = await fetch(`http://localhost:3000/carts?userId=${currentUser.id}`);
+            const response = await fetch(`http://192.168.1.10:3000/carts?userId=${currentUser.id}`);
             const carts = await response.json();
             const userCart = carts[0];
 
@@ -75,7 +75,7 @@ export default function CartScreen() {
                     item.productId === productId ? { ...item, quantity: newQty } : item
                 );
 
-                await fetch(`http://localhost:3000/carts/${userCart.id}`, {
+                await fetch(`http://192.168.1.10:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...userCart, items: updatedItems }),
@@ -102,13 +102,13 @@ export default function CartScreen() {
     // ✅ Xử lý xóa sản phẩm
     const handleRemoveFromCart = async (productId: string, userId: string) => {
         try {
-            const response = await fetch(`http://localhost:3000/carts?userId=${userId}`);
+            const response = await fetch(`http://192.168.1.10:3000/carts?userId=${userId}`);
             const carts = await response.json();
             const userCart = carts[0];
 
             if (userCart) {
                 userCart.items = userCart.items.filter((item: any) => item.productId !== productId);
-                await fetch(`http://localhost:3000/carts/${userCart.id}`, {
+                await fetch(`http://192.168.1.10:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userCart),

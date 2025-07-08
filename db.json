@@ -205,7 +205,7 @@
           "image": "https://product.hstatic.net/1000341630/product/kamito14024_32e3bcc59c3b4ce28e4badf99212632a_master.jpg",
           "price": 299000,
           "size": "M",
-          "quantity": 1,
+          "quantity": 2,
           "userId": "5kcpbr36",
           "productId": "4"
         },
@@ -218,6 +218,16 @@
           "quantity": 1,
           "userId": "5kcpbr36",
           "productId": "6"
+        },
+        {
+          "id": "3",
+          "name": "Bộ bóng đá Kamito Prematch HAGL",
+          "image": "https://product.hstatic.net/1000341630/product/artboard_1_21349eb531ba43a5963afb287ecb580b_master.jpg",
+          "price": 359000,
+          "size": "M",
+          "quantity": 1,
+          "userId": "5kcpbr36",
+          "productId": "3"
         }
       ]
     },
