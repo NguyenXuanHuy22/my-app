@@ -3,13 +3,13 @@ import { useRouter } from 'expo-router';
 
 import { useEffect, useState } from 'react';
 import {
-  Alert,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    FlatList,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { removeFromCart, setCart, updateQuantity } from '../redux/slices/cartSlice';
 import { useAppDispatch, useAppSelector } from '../redux/store';
@@ -194,7 +194,13 @@ export default function CartScreen() {
                             selectedItems.length === 0 && { backgroundColor: '#ccc' },
                         ]}
                         disabled={selectedItems.length === 0}
-                        onPress={() => Alert.alert('Đặt hàng', 'Chức năng đang phát triển')}
+                        onPress={() =>
+                            router.push({
+                                pathname: '/checkout',
+                                params: { selected: JSON.stringify(selectedItems) },
+                            })
+                        }
+
                     >
                         <Text style={styles.orderText}>Đặt hàng →</Text>
                     </TouchableOpacity>
@@ -218,9 +224,9 @@ export default function CartScreen() {
                     <Text style={styles.menuText}>Account</Text>
                 </TouchableOpacity>
             </View>
-      
-    </View>
-  );
+
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({

@@ -21,7 +21,7 @@ interface AuthState {
 }
 
 
-const API = 'http://192.168.1.13:3000'; // Sử dụng IP LAN nếu dùng thiết bị thật
+const API = 'http://192.168.1.13:3000'; 
 
 
 // ✅ Hàm tạo ID ngẫu nhiên

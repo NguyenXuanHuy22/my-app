@@ -2,13 +2,13 @@ import { AntDesign, Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Alert,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { addToCart } from '../../redux/slices/cartSlice';
 import { selectProductById } from '../../redux/slices/productsSlice';
@@ -17,151 +17,155 @@ import { useAppDispatch, useAppSelector } from '../../redux/store';
 const sizes = ['S', 'M', 'L'];
 
 export default function ProductDetailScreen() {
-  const router = useRouter();
-  const { id } = useLocalSearchParams();
-  const product = useAppSelector(selectProductById(id as string));
-  const [selectedSize, setSelectedSize] = useState('M');
-  const [isFavorite, setIsFavorite] = useState(false);
-  const currentUser = useAppSelector(state => state.auth.currentUser);
-  const dispatch = useAppDispatch();
+    const router = useRouter();
+    const { id } = useLocalSearchParams();
+    const product = useAppSelector(selectProductById(id as string));
+    const currentUser = useAppSelector((state) => state.auth.user);
+    const dispatch = useAppDispatch();
 
-  if (!product) return <Text style={{ padding: 20 }}>Không tìm thấy sản phẩm</Text>;
+    const [selectedSize, setSelectedSize] = useState('M');
+    const [isFavorite, setIsFavorite] = useState(false);
 
-  const handleAddToCart = async () => {
-    if (!currentUser) {
-      Alert.alert('Vui lòng đăng nhập', 'Bạn cần đăng nhập để thêm vào giỏ hàng');
-      return;
+    if (!product) {
+        return (
+            <View style={styles.container}>
+                <Text>Không tìm thấy sản phẩm.</Text>
+            </View>
+        );
     }
 
-    const cartItem = {
-      productId: product.id,
-      name: product.name,
-      image: product.image,
-      price: product.price,
-      size: selectedSize,
-      quantity: 1,
-      //color: product.color || 'Đen',
-    };
-
-    try {
-      // Kiểm tra giỏ hàng hiện có của người dùng
-      const response = await fetch(`http://localhost:3000/carts?userId=${currentUser.id}`);
-      const carts = await response.json();
-      const userCart = carts[0];
-
-      if (userCart) {
-        // Nếu giỏ hàng đã tồn tại, thêm hoặc cập nhật sản phẩm
-        const existingItem = userCart.items.find(
-          (item: any) => item.productId === cartItem.productId && item.size === cartItem.size
-        );
-
-        if (existingItem) {
-          existingItem.quantity += 1;
-        } else {
-          userCart.items.push(cartItem);
+    const handleAddToCart = async () => {
+        if (!currentUser) {
+            Alert.alert('Vui lòng đăng nhập', 'Bạn cần đăng nhập để thêm vào giỏ hàng');
+            return;
         }
 
-        await fetch(`http://localhost:3000/carts/${userCart.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(userCart),
-        });
-      } else {
-        // Nếu không có giỏ hàng, tạo mới
-        const newCart = {
-          userId: currentUser.id,
-          items: [cartItem],
+        const cartItem = {
+            id: product.id,
+            name: product.name,
+            image: product.image,
+            price: product.price,
+            size: selectedSize,
+            quantity: 1,
+            userId: currentUser.id,
         };
-        await fetch('http://localhost:3000/carts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newCart),
-        });
-      }
 
-      // Cập nhật Redux store
-      dispatch(
-        addToCart({
-          id: product.id,
-          name: product.name,
-          image: product.image,
-          price: product.price,
-          size: selectedSize,
-          quantity: 1,
-          userId: currentUser.id,
-        })
-      );
+        try {
+            const response = await fetch(`http://localhost:3000/carts?userId=${currentUser.id}`);
+            const carts = await response.json();
+            const userCart = carts[0];
 
-      router.push('/cart');
-    } catch (error) {
-      Alert.alert('Lỗi', 'Không thể thêm sản phẩm vào giỏ hàng');
-    }
-  };
+            if (userCart) {
+                const existingItem = userCart.items.find(
+                    (item: any) =>
+                        item.productId === cartItem.id && item.size === cartItem.size
+                );
 
-  return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.replace('/Home')}>
-          <Ionicons name="arrow-back" size={24} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Sản phẩm</Text>
-        <View style={{ width: 24 }} />
-      </View>
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    userCart.items.push({
+                        ...cartItem,
+                        productId: cartItem.id,
+                    });
+                }
 
-      {/* Image */}
-      <Image source={{ uri: product.image }} style={styles.productImage} />
+                await fetch(`http://localhost:3000/carts/${userCart.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userCart),
+                });
+            } else {
+                const newCart = {
+                    userId: currentUser.id,
+                    items: [
+                        {
+                            ...cartItem,
+                            productId: cartItem.id,
+                        },
+                    ],
+                };
 
-      {/* Name + Favorite */}
-      <View style={styles.nameRow}>
-        <Text style={styles.productName}>{product.name}</Text>
-        <TouchableOpacity
-          style={styles.favoriteBtn}
-          onPress={() => setIsFavorite(!isFavorite)}
-        >
-          <AntDesign
-            name={isFavorite ? 'heart' : 'hearto'}
-            size={20}
-            color={isFavorite ? 'red' : 'black'}
-          />
-        </TouchableOpacity>
-      </View>
+                await fetch(`http://localhost:3000/carts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newCart),
+                });
+            }
 
-      {/* Rating */}
-      <View style={styles.ratingRow}>
-        <Text style={styles.star}>⭐</Text>
-        <Text style={styles.ratingText}>4.0/5 </Text>
-      </View>
+            dispatch(addToCart(cartItem));
+            router.push('/cart');
+        } catch (error) {
+            console.error('Lỗi khi thêm vào giỏ hàng:', error);
+            Alert.alert('Lỗi', 'Không thể thêm sản phẩm vào giỏ hàng');
+        }
+    };
 
-      {/* Description */}
-      <Text style={styles.description}>{product.description}</Text>
+    return (
+        <ScrollView style={styles.container}>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => router.replace('/(tabs)/Home')}>
+                    <Ionicons name="arrow-back" size={24} color="black" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Chi tiết sản phẩm</Text>
+                <TouchableOpacity
+                    style={styles.favoriteBtn}
+                    onPress={() => setIsFavorite(!isFavorite)}
+                >
+                    <AntDesign
+                        name={isFavorite ? 'heart' : 'hearto'}
+                        size={20}
+                        color={isFavorite ? 'red' : 'black'}
+                    />
+                </TouchableOpacity>
+            </View>
 
-      {/* Size */}
-      <Text style={styles.sectionTitle}>Chọn size</Text>
-      <View style={styles.sizeContainer}>
-        {sizes.map((size) => (
-          <TouchableOpacity
-            key={size}
-            style={[styles.sizeBox, selectedSize === size && styles.sizeBoxSelected]}
-            onPress={() => setSelectedSize(size)}
-          >
-            <Text style={selectedSize === size ? styles.sizeTextSelected : styles.sizeText}>
-              {size}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+            <Image source={{ uri: product.image }} style={styles.productImage} />
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.price}>{product.price} VND</Text>
-        <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
-          <Ionicons name="cart-outline" size={20} color="#fff" />
-          <Text style={styles.cartText}>Thêm vào giỏ hàng</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-  );
+            <View style={styles.nameRow}>
+                <Text style={styles.productName}>{product.name}</Text>
+            </View>
+
+            <View style={styles.ratingRow}>
+                <Text style={styles.star}>⭐</Text>
+                <Text style={styles.ratingText}>4.0/5</Text>
+            </View>
+
+            <Text style={styles.description}>{product.description}</Text>
+
+            <Text style={styles.sectionTitle}>Chọn size</Text>
+            <View style={styles.sizeContainer}>
+                {sizes.map((size) => (
+                    <TouchableOpacity
+                        key={size}
+                        style={[
+                            styles.sizeBox,
+                            selectedSize === size && styles.sizeBoxSelected,
+                        ]}
+                        onPress={() => setSelectedSize(size)}
+                    >
+                        <Text
+                            style={
+                                selectedSize === size
+                                    ? styles.sizeTextSelected
+                                    : styles.sizeText
+                            }
+                        >
+                            {size}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+
+            <View style={styles.footer}>
+                <Text style={styles.price}>{product.price.toLocaleString()} VND</Text>
+                <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
+                    <Ionicons name="cart-outline" size={20} color="#fff" />
+                    <Text style={styles.cartText}>Thêm vào giỏ hàng</Text>
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
+    );
 }
 
 const styles = StyleSheet.create({
