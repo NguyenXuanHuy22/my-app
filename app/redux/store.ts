@@ -14,8 +14,10 @@ import {
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 import authReducer from './slices/authSlice';
+import bannerReducer from './slices/bannerSlice';
 import cartReducer from './slices/cartSlice';
 import productsReducer from './slices/productsSlice';
+
 
 //  1. Cấu hình persist
 const persistConfig = {
@@ -29,6 +31,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   cart: cartReducer,
   products: productsReducer,
+  banners: bannerReducer,
 });
 
 //  3. Áp dụng persist

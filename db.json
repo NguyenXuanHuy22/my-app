@@ -424,6 +424,23 @@
       "items": [],
       "total": 80,
       "status": "Chờ xử lý"
+    },
+    {
+      "id": "b033",
+      "userId": "QZsU2tCy",
+      "items": [
+        {
+          "id": "5",
+          "name": "Áo Bóng Đá CLB MU",
+          "image": "https://i.pinimg.com/736x/c1/5e/f4/c15ef463607fa68c05c87e3eef08c297.jpg",
+          "price": 119000,
+          "quantity": 1,
+          "size": "L",
+          "userId": "QZsU2tCy"
+        }
+      ],
+      "total": 119080,
+      "status": "Chờ xử lý"
     }
   ],
   "comments": [
@@ -573,6 +590,24 @@
         "M",
         "L"
       ]
+    }
+  ],
+  "banner": [
+    {
+      "id": "1",
+      "image": "https://i.pinimg.com/736x/fd/a4/2f/fda42f66fca6afafa9b205d5621d0ce1.jpg"
+    },
+    {
+      "id": "2",
+      "image": "https://i.pinimg.com/736x/86/71/80/8671803d0d62faabf4501d923e1de020.jpg"
+    },
+    {
+      "id": "3",
+      "image": "https://i.pinimg.com/736x/c4/3f/79/c43f79c15d0e860075aee6e8fbc3d223.jpg"
+    },
+    {
+      "id": "a263",
+      "image": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252Fmy-app-c6b213cd-5079-4514-a833-5d3cc735d251/ImagePicker/f351b3bb-6e2e-4463-9e3b-003a205cfc22.jpeg"
     }
   ]
 }
