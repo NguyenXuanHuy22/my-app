@@ -91,8 +91,8 @@ const ManageProducts = () => {
     };
 
     const url = editingProductId
-      ? `http://192.168.1.13:3000/products/${editingProductId}`
-      : 'http://192.168.1.13:3000/products';
+      ? `http://192.168.1.10:3000/products/${editingProductId}`
+      : 'http://192.168.1.10:3000/products';
 
     const method = editingProductId ? 'PUT' : 'POST';
 
@@ -123,7 +123,7 @@ const ManageProducts = () => {
       {
         text: 'Xóa',
         onPress: async () => {
-          await fetch(`http://192.168.1.13:3000/products/${id}`, {
+          await fetch(`http://192.168.1.10:3000/products/${id}`, {
             method: 'DELETE',
           });
           dispatch(fetchProducts());
@@ -205,38 +205,38 @@ const ManageProducts = () => {
     </Modal>
   );
 
-return (
-  <View style={{ flex: 1 }}>
-    <FlatList
-      data={products}
-      keyExtractor={(item) => item.id}
-      renderItem={renderProductItem}
-      numColumns={2}
-      ListHeaderComponent={
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.replace('/(tabs)/AccountScreen')}>
-            <Ionicons name="arrow-back" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.sectionTitle}> Quản lý sản phẩm</Text>
-        </View>
-      }
-      columnWrapperStyle={styles.rowWrapper}
-      contentContainerStyle={{ paddingBottom: 100 }}
-    />
+  return (
+    <View style={{ flex: 1 }}>
+      <FlatList
+        data={products}
+        keyExtractor={(item) => item.id}
+        renderItem={renderProductItem}
+        numColumns={2}
+        ListHeaderComponent={
+          <View style={styles.headerRow}>
+            <TouchableOpacity onPress={() => router.replace('/(tabs)/AccountScreen')}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.sectionTitle}> Quản lý sản phẩm</Text>
+          </View>
+        }
+        columnWrapperStyle={styles.rowWrapper}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
 
-    <TouchableOpacity
-      style={styles.fab}
-      onPress={() => {
-        resetForm();
-        setShowForm(true);
-      }}
-    >
-      <AntDesign name="plus" size={28} color="#fff" />
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => {
+          resetForm();
+          setShowForm(true);
+        }}
+      >
+        <AntDesign name="plus" size={28} color="#fff" />
+      </TouchableOpacity>
 
-    {renderForm()}
-  </View>
-);
+      {renderForm()}
+    </View>
+  );
 
 
 };
@@ -343,12 +343,12 @@ const styles = StyleSheet.create({
     maxHeight: '90%',
   },
   headerRow: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingHorizontal: 16,
-  marginTop: 16,
-  marginBottom: 8,
-},
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
+  },
 
 
 });

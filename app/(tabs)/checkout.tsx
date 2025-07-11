@@ -38,7 +38,7 @@ export default function CheckoutScreen() {
                 if (!currentUser) return;
 
                 try {
-                    const response = await fetch(`http://192.168.1.10:3000/users/${currentUser.id}`);
+                    const response = await fetch(`http://192.168.1.13:3000/users/${currentUser.id}`);
                     const userData = await response.json();
                     setAddress(userData.address || '');
                 } catch (error) {
