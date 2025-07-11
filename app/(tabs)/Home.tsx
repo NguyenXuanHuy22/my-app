@@ -10,7 +10,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 import { fetchBanners, selectBanners } from '../redux/slices/bannerSlice';
 import { fetchProducts, selectProducts } from '../redux/slices/productsSlice';
@@ -33,11 +33,11 @@ const HomeScreen = () => {
 
   const products = useAppSelector(selectProducts) as Product[];
   const loading = useAppSelector(state => state.products.loading);
+  const banners = useAppSelector(selectBanners) as Banner[];
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const banners = useAppSelector(selectBanners) as Banner[];
-  const [currentBanner, setCurrentbanner] = useState(0);
+  const [currentBanner, setCurrentBanner] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
@@ -56,18 +56,22 @@ const HomeScreen = () => {
 
   useEffect(() => {
     if (banners.length === 0) return;
+
     const interval = setInterval(() => {
-      const nextIndex = (currentBanner + 1) % banners.length;
-      setCurrentbanner(nextIndex);
-      scrollRef.current?.scrollTo({
-        x: nextIndex * Dimensions.get('window').width,
-        animated: true,
+      setCurrentBanner(prev => {
+        const nextIndex = (prev + 1) % banners.length;
+        scrollRef.current?.scrollTo({
+          x: nextIndex * screenWidth,
+          animated: true,
+        });
+        return nextIndex;
       });
     }, 3000);
-    return () => clearInterval(interval);
-  }, [currentBanner, banners]);
 
-  const renderItem = ({ item }: { item: Product }) => (
+    return () => clearInterval(interval);
+  }, [banners]);
+
+  const renderItem = ({ item, index }: { item: Product; index: number }) => (
     <TouchableOpacity
       style={styles.productCard}
       onPress={() => router.push(`/product/${item.id}`)}
@@ -78,11 +82,15 @@ const HomeScreen = () => {
     </TouchableOpacity>
   );
 
+  if (!products || !banners) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
         data={filteredProducts}
-        keyExtractor={item => item.id}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         numColumns={2}
         renderItem={renderItem}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
@@ -108,14 +116,14 @@ const HomeScreen = () => {
                 ref={scrollRef}
                 onScroll={(event) => {
                   const scrollX = event.nativeEvent.contentOffset.x;
-                  const index = Math.round(scrollX / Dimensions.get('window').width);
-                  setCurrentbanner(index);
+                  const index = Math.round(scrollX / screenWidth);
+                  setCurrentBanner(index);
                 }}
                 scrollEventThrottle={16}
               >
-                {banners.map((banner) => (
+                {banners.map((banner, index) => (
                   <Image
-                    key={banner.id}
+                    key={`${banner.id}-${index}`}
                     source={{ uri: banner.image }}
                     style={styles.bannerImage}
                     resizeMode="cover"
@@ -127,7 +135,7 @@ const HomeScreen = () => {
               <View style={styles.dotsContainer}>
                 {banners.map((_, index) => (
                   <View
-                    key={index}
+                    key={`dot-${index}`}
                     style={[
                       styles.dot,
                       currentBanner === index && styles.activeDot,
@@ -187,8 +195,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   bannerImage: {
-    width: screenWidth,
+    width: screenWidth - 32,
     height: 180,
+    borderRadius: 12,
+    marginHorizontal: 16,
   },
   dotsContainer: {
     flexDirection: 'row',

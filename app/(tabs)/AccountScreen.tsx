@@ -78,6 +78,11 @@ const AccountScreen = () => {
                             text="Thông tin"
                             onPress={() => router.push('/profile')}
                         />
+                        <MenuItem
+                            icon={<Ionicons name="chatbubble-outline" size={20} color="#000" />}
+                            text="Liên hệ"
+                            onPress={() => router.push('/(tabs)/ChatScreen')}
+                        />
                     </>
                 )}
 

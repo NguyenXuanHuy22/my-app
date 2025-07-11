@@ -16,6 +16,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import authReducer from './slices/authSlice';
 import bannerReducer from './slices/bannerSlice';
 import cartReducer from './slices/cartSlice';
+import chatReducer from './slices/chatSlice';
 import productsReducer from './slices/productsSlice';
 
 
@@ -32,6 +33,7 @@ const rootReducer = combineReducers({
   cart: cartReducer,
   products: productsReducer,
   banners: bannerReducer,
+  chat: chatReducer,
 });
 
 //  3. Áp dụng persist

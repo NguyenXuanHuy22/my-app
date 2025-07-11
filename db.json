@@ -19,15 +19,6 @@
       "role": "user"
     },
     {
-      "id": "k3osGIKG",
-      "address": "nguyên xá",
-      "email": "huycoi1293@gmail.com",
-      "name": "huy123",
-      "password": "123456",
-      "phone": "0975830708",
-      "role": "user"
-    },
-    {
       "id": "esJ-EyFN",
       "address": "xóm 3",
       "email": "huy2005@gmail.com",
@@ -61,6 +52,15 @@
       "phone": "0987472464",
       "password": "12345678",
       "address": "hưng yên",
+      "role": "user"
+    },
+    {
+      "id": "v4sfyh5t",
+      "name": "Huycoi",
+      "email": "huycoi1293@gmail.com",
+      "phone": "0963852741",
+      "password": "12345678",
+      "address": "Xã Đông Hưng, Hưng Yên ",
       "role": "user"
     }
   ],
@@ -119,6 +119,11 @@
     {
       "id": "qysiu1pz",
       "userId": "e30j2m7p",
+      "items": []
+    },
+    {
+      "id": "xymt5uwm",
+      "userId": "v4sfyh5t",
       "items": []
     }
   ],
@@ -191,28 +196,6 @@
           "productId": "1751941786016"
         }
       ]
-    },
-    {
-      "id": "sxMjttb5",
-      "items": [
-        {
-          "productId": "2",
-          "name": "T-shirt thể thao nam Promax Sideflow V-neck",
-          "image": "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/May2025/t-shirt-the-thao-nam-promax-sideflow-v-neck-1-xanh-bong-dem_18.jpg",
-          "price": 200000,
-          "size": "S",
-          "quantity": 1
-        },
-        {
-          "productId": "4",
-          "name": "Bộ bóng đá Kamito TL79",
-          "image": "https://product.hstatic.net/1000341630/product/kamito14024_32e3bcc59c3b4ce28e4badf99212632a_master.jpg",
-          "price": 299000,
-          "size": "L",
-          "quantity": 1
-        }
-      ],
-      "userId": "k3osGIKG"
     },
     {
       "id": "nvZWZ56a",
@@ -293,7 +276,7 @@
           "image": "https://i.pinimg.com/736x/54/57/71/54577107fdde5fffecf01b8aac0945d7.jpg",
           "price": 200000,
           "size": "M",
-          "quantity": 1
+          "quantity": 1 
         },
         {
           "productId": "4",
@@ -304,6 +287,11 @@
           "quantity": 1
         }
       ]
+    },
+    {
+      "id": "gcv58vyl",
+      "userId": "v4sfyh5t",
+      "items": []
     }
   ],
   "orders": [
@@ -441,6 +429,13 @@
       ],
       "total": 119080,
       "status": "Chờ xử lý"
+    },
+    {
+      "id": "vlmwf656",
+      "userId": "v4sfyh5t",
+      "status": "Chưa có đơn hàng",
+      "total": 0,
+      "items": []
     }
   ],
   "comments": [

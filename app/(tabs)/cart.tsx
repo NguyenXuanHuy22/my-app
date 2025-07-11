@@ -37,7 +37,7 @@ export default function CartScreen() {
         const fetchCart = async () => {
             if (currentUser) {
                 try {
-                    const response = await fetch(`http://192.168.1.10:3000/carts?userId=${currentUser.id}`);
+                    const response = await fetch(`http://192.168.1.13:3000/carts?userId=${currentUser.id}`);
                     const carts = await response.json();
                     const userCart = carts[0] || { items: [] };
 
@@ -66,7 +66,7 @@ export default function CartScreen() {
         if (!currentUser) return;
 
         try {
-            const response = await fetch(`http://192.168.1.10:3000/carts?userId=${currentUser.id}`);
+            const response = await fetch(`http://192.168.1.13:3000/carts?userId=${currentUser.id}`);
             const carts = await response.json();
             const userCart = carts[0];
 
@@ -75,7 +75,7 @@ export default function CartScreen() {
                     item.productId === productId ? { ...item, quantity: newQty } : item
                 );
 
-                await fetch(`http://192.168.1.10:3000/carts/${userCart.id}`, {
+                await fetch(`http://192.168.1.13:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...userCart, items: updatedItems }),
@@ -102,13 +102,13 @@ export default function CartScreen() {
     // ✅ Xử lý xóa sản phẩm
     const handleRemoveFromCart = async (productId: string, userId: string) => {
         try {
-            const response = await fetch(`http://192.168.1.10:3000/carts?userId=${userId}`);
+            const response = await fetch(`http://192.168.1.13:3000/carts?userId=${userId}`);
             const carts = await response.json();
             const userCart = carts[0];
 
             if (userCart) {
                 userCart.items = userCart.items.filter((item: any) => item.productId !== productId);
-                await fetch(`http://192.168.1.10:3000/carts/${userCart.id}`, {
+                await fetch(`http://192.168.1.13:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userCart),
@@ -131,55 +131,55 @@ export default function CartScreen() {
                     Chưa có sản phẩm nào trong giỏ hàng
                 </Text>
             ) : (
-                <FlatList
-                    data={cartItems}
-                    keyExtractor={(item, index) => item.id + index}
-                    renderItem={({ item }) => (
-                        <View style={styles.itemRow}>
-                            {/* Nút chọn hình tròn */}
-                            <TouchableOpacity onPress={() => toggleSelectItem(item.id)}>
-                                <View
-                                    style={[
-                                        styles.circle,
-                                        selectedItems.includes(item.id) && styles.circleSelected,
-                                    ]}
-                                />
-                            </TouchableOpacity>
-
-                            <Image source={{ uri: item.image }} style={styles.image} />
-                            <View style={styles.info}>
-                                <Text style={styles.name}>{item.name}</Text>
-                                <Text>Size: {item.size}</Text>
-                                <Text>{item.price.toLocaleString()} VND</Text>
-                                <View style={styles.qtyRow}>
-                                    <TouchableOpacity
-                                        onPress={() =>
-                                            handleUpdateQuantity(item.id, item.quantity - 1)
-                                        }
-                                        disabled={item.quantity <= 1}
-                                    >
-                                        <Text style={styles.qtyBtn}>-</Text>
-                                    </TouchableOpacity>
-                                    <Text>{item.quantity}</Text>
-                                    <TouchableOpacity
-                                        onPress={() =>
-                                            handleUpdateQuantity(item.id, item.quantity + 1)
-                                        }
-                                    >
-                                        <Text style={styles.qtyBtn}>+</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                            <TouchableOpacity
-                                onPress={() => handleRemoveFromCart(item.id, currentUser?.id || '')}
-                            >
-                                <Ionicons name="trash-outline" size={24} color="red" />
-                            </TouchableOpacity>
-                        </View>
-                    )}
-
-                    contentContainerStyle={{ paddingBottom: 180 }}
+               <FlatList
+    data={cartItems}
+    keyExtractor={(item) => `${item.id}-${item.size}-${item.userId}`} // ✅ Key duy nhất
+    renderItem={({ item }) => (
+        <View style={styles.itemRow}>
+            {/* Nút chọn hình tròn */}
+            <TouchableOpacity onPress={() => toggleSelectItem(item.id)}>
+                <View
+                    style={[
+                        styles.circle,
+                        selectedItems.includes(item.id) && styles.circleSelected,
+                    ]}
                 />
+            </TouchableOpacity>
+
+            <Image source={{ uri: item.image }} style={styles.image} />
+            <View style={styles.info}>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text>Size: {item.size}</Text>
+                <Text>{item.price.toLocaleString()} VND</Text>
+                <View style={styles.qtyRow}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            handleUpdateQuantity(item.id, item.quantity - 1)
+                        }
+                        disabled={item.quantity <= 1}
+                    >
+                        <Text style={styles.qtyBtn}>-</Text>
+                    </TouchableOpacity>
+                    <Text>{item.quantity}</Text>
+                    <TouchableOpacity
+                        onPress={() =>
+                            handleUpdateQuantity(item.id, item.quantity + 1)
+                        }
+                    >
+                        <Text style={styles.qtyBtn}>+</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+            <TouchableOpacity
+                onPress={() => handleRemoveFromCart(item.id, currentUser?.id || '')}
+            >
+                <Ionicons name="trash-outline" size={24} color="red" />
+            </TouchableOpacity>
+        </View>
+    )}
+    contentContainerStyle={{ paddingBottom: 180 }}
+/>
+
 
             )}
 
