@@ -130,8 +130,8 @@ export default function CartScreen() {
                 <Text style={{ fontSize: 16, marginTop: 20 }}>
                     Chưa có sản phẩm nào trong giỏ hàng
                 </Text>
-            ) : (
-                <FlatList
+            ) : ( 
+                <FlatList //test
                     data={cartItems}
                     keyExtractor={(item) => `${item.id}-${item.size}-${item.userId}`} // ✅ Key duy nhất
                     renderItem={({ item }) => (
