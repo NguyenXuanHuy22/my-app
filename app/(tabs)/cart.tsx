@@ -131,54 +131,54 @@ export default function CartScreen() {
                     Chưa có sản phẩm nào trong giỏ hàng
                 </Text>
             ) : (
-               <FlatList
-    data={cartItems}
-    keyExtractor={(item) => `${item.id}-${item.size}-${item.userId}`} // ✅ Key duy nhất
-    renderItem={({ item }) => (
-        <View style={styles.itemRow}>
-            {/* Nút chọn hình tròn */}
-            <TouchableOpacity onPress={() => toggleSelectItem(item.id)}>
-                <View
-                    style={[
-                        styles.circle,
-                        selectedItems.includes(item.id) && styles.circleSelected,
-                    ]}
-                />
-            </TouchableOpacity>
+                <FlatList
+                    data={cartItems}
+                    keyExtractor={(item) => `${item.id}-${item.size}-${item.userId}`} // ✅ Key duy nhất
+                    renderItem={({ item }) => (
+                        <View style={styles.itemRow}>
+                            {/* Nút chọn hình tròn */}
+                            <TouchableOpacity onPress={() => toggleSelectItem(item.id)}>
+                                <View
+                                    style={[
+                                        styles.circle,
+                                        selectedItems.includes(item.id) && styles.circleSelected,
+                                    ]}
+                                />
+                            </TouchableOpacity>
 
-            <Image source={{ uri: item.image }} style={styles.image} />
-            <View style={styles.info}>
-                <Text style={styles.name}>{item.name}</Text>
-                <Text>Size: {item.size}</Text>
-                <Text>{item.price.toLocaleString()} VND</Text>
-                <View style={styles.qtyRow}>
-                    <TouchableOpacity
-                        onPress={() =>
-                            handleUpdateQuantity(item.id, item.quantity - 1)
-                        }
-                        disabled={item.quantity <= 1}
-                    >
-                        <Text style={styles.qtyBtn}>-</Text>
-                    </TouchableOpacity>
-                    <Text>{item.quantity}</Text>
-                    <TouchableOpacity
-                        onPress={() =>
-                            handleUpdateQuantity(item.id, item.quantity + 1)
-                        }
-                    >
-                        <Text style={styles.qtyBtn}>+</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <TouchableOpacity
-                onPress={() => handleRemoveFromCart(item.id, currentUser?.id || '')}
-            >
-                <Ionicons name="trash-outline" size={24} color="red" />
-            </TouchableOpacity>
-        </View>
-    )}
-    contentContainerStyle={{ paddingBottom: 180 }}
-/>
+                            <Image source={{ uri: item.image }} style={styles.image} />
+                            <View style={styles.info}>
+                                <Text style={styles.name}>{item.name}</Text>
+                                <Text>Size: {item.size}</Text>
+                                <Text>{item.price.toLocaleString()} VND</Text>
+                                <View style={styles.qtyRow}>
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            handleUpdateQuantity(item.id, item.quantity - 1)
+                                        }
+                                        disabled={item.quantity <= 1}
+                                    >
+                                        <Text style={styles.qtyBtn}>-</Text>
+                                    </TouchableOpacity>
+                                    <Text>{item.quantity}</Text>
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            handleUpdateQuantity(item.id, item.quantity + 1)
+                                        }
+                                    >
+                                        <Text style={styles.qtyBtn}>+</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => handleRemoveFromCart(item.id, currentUser?.id || '')}
+                            >
+                                <Ionicons name="trash-outline" size={24} color="red" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    contentContainerStyle={{ paddingBottom: 180 }}
+                />
 
 
             )}
