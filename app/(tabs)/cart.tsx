@@ -130,10 +130,10 @@ export default function CartScreen() {
                 <Text style={{ fontSize: 16, marginTop: 20 }}>
                     Chưa có sản phẩm nào trong giỏ hàng
                 </Text>
-            ) : (
-                <FlatList
+            ) : ( 
+                <FlatList //test
                     data={cartItems}
-                    keyExtractor={(item, index) => item.id + index}
+                    keyExtractor={(item) => `${item.id}-${item.size}-${item.userId}`} // ✅ Key duy nhất
                     renderItem={({ item }) => (
                         <View style={styles.itemRow}>
                             {/* Nút chọn hình tròn */}
@@ -177,9 +177,9 @@ export default function CartScreen() {
                             </TouchableOpacity>
                         </View>
                     )}
-
                     contentContainerStyle={{ paddingBottom: 180 }}
                 />
+
 
             )}
 

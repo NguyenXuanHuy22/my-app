@@ -1,18 +1,18 @@
 import {
-  AntDesign,
-  Feather,
-  Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
+    AntDesign,
+    Feather,
+    Ionicons,
+    MaterialCommunityIcons,
+    MaterialIcons,
 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store'; // đường dẫn tùy dự án của bạn
@@ -63,7 +63,7 @@ const AccountScreen = () => {
                                 <MaterialCommunityIcons name="image-area" size={20} color="#000" />
                             }
                             text="Quản lý banner"
-                            onPress={() => router.push('/admin/manage-products')}
+                            onPress={() => router.push('/admin/manage-banner')}
                         />
                     </>
                 ) : (
@@ -77,6 +77,11 @@ const AccountScreen = () => {
                             icon={<Ionicons name="person-outline" size={20} color="#000" />}
                             text="Thông tin"
                             onPress={() => router.push('/profile')}
+                        />
+                        <MenuItem
+                            icon={<Ionicons name="chatbubble-outline" size={20} color="#000" />}
+                            text="Liên hệ"
+                            onPress={() => router.push('/(tabs)/ChatScreen')}
                         />
                     </>
                 )}

@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useState } from 'react';
@@ -54,7 +53,7 @@ export default function CheckoutScreen() {
 
     const handlePlaceOrder = async () => {
         try {
-            await fetch('http://localhost:3000/orders', {
+            await fetch('http://192.168.1.13:3000/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
