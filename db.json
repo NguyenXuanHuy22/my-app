@@ -42,7 +42,7 @@
       "email": "quangteo@gmail.com",
       "phone": "0912345678",
       "password": "123456",
-      "address": "Ba vi",
+      "address": "hà tân",
       "role": "user"
     },
     {
@@ -137,9 +137,19 @@
           "image": "https://media3.coolmate.me/cdn-cgi/image/quality=80,format=auto/uploads/April2025/ao-singlet-chay-bo-advanced-vent-techgraphic-camo-448do-nau_74.jpg",
           "name": "Bộ bóng đá Kamito Prematch HAGL",
           "price": 219000,
-          "quantity": 2,
+          "quantity": 3,
           "size": "M",
           "color": "Đen"
+        },
+        {
+          "id": "4",
+          "name": "Bộ bóng đá Kamito TL79",
+          "image": "https://product.hstatic.net/1000341630/product/kamito14024_32e3bcc59c3b4ce28e4badf99212632a_master.jpg",
+          "price": 299000,
+          "size": "M",
+          "quantity": 1,
+          "userId": "1",
+          "productId": "4"
         }
       ]
     },
@@ -164,16 +174,6 @@
           "quantity": 1,
           "userId": "QZsU2tCy",
           "productId": "1"
-        },
-        {
-          "id": "5",
-          "name": "Áo Bóng Đá CLB MU",
-          "image": "https://i.pinimg.com/736x/c1/5e/f4/c15ef463607fa68c05c87e3eef08c297.jpg",
-          "price": 119000,
-          "size": "L",
-          "quantity": 1,
-          "userId": "QZsU2tCy",
-          "productId": "5"
         },
         {
           "id": "1751941786016",
@@ -248,6 +248,26 @@
           "image": "https://product.hstatic.net/1000341630/product/artboard_1_21349eb531ba43a5963afb287ecb580b_master.jpg",
           "price": 359000,
           "size": "M",
+          "quantity": 1,
+          "userId": "5kcpbr36",
+          "productId": "3"
+        },
+        {
+          "id": "5",
+          "name": "Áo Bóng Đá CLB MU",
+          "image": "https://i.pinimg.com/736x/c1/5e/f4/c15ef463607fa68c05c87e3eef08c297.jpg",
+          "price": 119000,
+          "size": "M",
+          "quantity": 1,
+          "userId": "5kcpbr36",
+          "productId": "5"
+        },
+        {
+          "id": "3",
+          "name": "Bộ bóng đá Kamito Prematch HAGL",
+          "image": "https://product.hstatic.net/1000341630/product/artboard_1_21349eb531ba43a5963afb287ecb580b_master.jpg",
+          "price": 359000,
+          "size": "S",
           "quantity": 1,
           "userId": "5kcpbr36",
           "productId": "3"
