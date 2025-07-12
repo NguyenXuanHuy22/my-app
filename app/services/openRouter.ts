@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_KEY = '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'; // Thay bằng API Key từ openrouter.ai
+
 
 export const getOpenRouterResponse = async (userInput: string) => {
   try {
