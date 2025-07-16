@@ -91,8 +91,8 @@ const ManageProducts = () => {
     };
 
     const url = editingProductId
-      ? `http://192.168.1.10:3000/products/${editingProductId}`
-      : 'http://192.168.1.10:3000/products';
+      ? `http://192.168.1.11:3000/products/${editingProductId}`
+      : 'http://192.168.1.11:3000/products';
 
     const method = editingProductId ? 'PUT' : 'POST';
 
@@ -123,7 +123,7 @@ const ManageProducts = () => {
       {
         text: 'Xóa',
         onPress: async () => {
-          await fetch(`http://192.168.1.10:3000/products/${id}`, {
+          await fetch(`http://192.168.1.11:3000/products/${id}`, {
             method: 'DELETE',
           });
           dispatch(fetchProducts());

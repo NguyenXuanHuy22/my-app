@@ -20,7 +20,7 @@ const initialState: BannerState = {
 
 // ✅ Fetch banners
 export const fetchBanners = createAsyncThunk('banners/fetchBanners', async () => {
-  const response = await axios.get('http://192.168.1.13:3000/banner');
+  const response = await axios.get('http://192.168.1.11:3000/banner');
   return response.data;
 });
 
@@ -28,7 +28,7 @@ export const fetchBanners = createAsyncThunk('banners/fetchBanners', async () =>
 export const addBanner = createAsyncThunk(
   'banners/addBanner',
   async (banner: { image: string }) => {
-    const response = await axios.post('http://192.168.1.13:3000/banner', banner);
+    const response = await axios.post('http://192.168.1.11:3000/banner', banner);
     return response.data;
   }
 );
@@ -37,7 +37,7 @@ export const addBanner = createAsyncThunk(
 export const deleteBanner = createAsyncThunk(
   'banners/deleteBanner',
   async (id: string) => {
-    await axios.delete(`http://192.168.1.13:3000/banner/${id}`);
+    await axios.delete(`http://192.168.1.11:3000/banner/${id}`);
     return id;
   }
 );

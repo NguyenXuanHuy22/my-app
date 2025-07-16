@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { getOpenRouterResponse } from '../../services/openRouter';
+import { getOpenRouterResponse } from '../../(tabs)/services/openRouter';
 
 interface ChatMessage {
   role: 'user' | 'assistant';

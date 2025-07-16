@@ -24,7 +24,7 @@ const initialState: ProductsState = {
   error: null,
 };
 
-const API_URL = 'http://192.168.1.13:3000/products';
+const API_URL = 'http://192.168.1.11:3000/products';
 
 // Fetch all
 export const fetchProducts = createAsyncThunk<Product[]>('products/fetch', async () => {
