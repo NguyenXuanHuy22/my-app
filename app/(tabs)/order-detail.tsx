@@ -1,15 +1,15 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    View,
-    Text,
-    StyleSheet,
+    ActivityIndicator,
     Image,
     ScrollView,
+    StyleSheet,
+    Text,
     TouchableOpacity,
-    ActivityIndicator,
+    View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function OrderDetailScreen() {
     const { orderId } = useLocalSearchParams();
@@ -22,7 +22,7 @@ export default function OrderDetailScreen() {
 
         const fetchOrder = async () => {
             try {
-                const res = await fetch(`http://192.168.1.11:3000/orders/${orderId}`);
+                const res = await fetch(`http://192.168.1.13:3000/orders/${orderId}`);
                 const data = await res.json();
                 setOrder(data);
             } catch (err) {
@@ -34,6 +34,63 @@ export default function OrderDetailScreen() {
 
         fetchOrder();
     }, [orderId]);
+
+    const getStepIndex = (status: string) => {
+        switch (status) {
+            case 'Chờ xử lý':
+                return 1;
+            case 'Đang giao hàng':
+                return 2;
+            case 'Đã giao':
+                return 3;
+            default:
+                return 0;
+        }
+    };
+
+    const renderOrderProgress = (status: string) => {
+        const steps = [
+            { label: 'Chờ xác nhận', icon: 'time-outline' },
+            { label: 'Đang giao hàng', icon: 'bicycle-outline' },
+            { label: 'Đã giao', icon: 'checkmark-done-outline' },
+        ];
+        const currentStep = getStepIndex(status);
+
+        return (
+            <View style={styles.progressContainer}>
+                {steps.map((step, index) => {
+                    const isActive = index < currentStep;
+                    return (
+                        <React.Fragment key={step.label}>
+                            <View style={styles.step}>
+                                <Ionicons
+                                    name={step.icon as any}
+                                    size={20}
+                                    color={isActive ? 'green' : '#ccc'}
+                                />
+                                <Text
+                                    style={[
+                                        styles.stepLabel,
+                                        isActive && { color: 'green', fontWeight: 'bold' },
+                                    ]}
+                                >
+                                    {step.label}
+                                </Text>
+                            </View>
+                            {index < steps.length - 1 && (
+                                <View
+                                    style={[
+                                        styles.line,
+                                        { backgroundColor: index < currentStep - 1 ? 'green' : '#ccc' },
+                                    ]}
+                                />
+                            )}
+                        </React.Fragment>
+                    );
+                })}
+            </View>
+        );
+    };
 
     if (loading) {
         return <ActivityIndicator style={{ marginTop: 50 }} size="large" color="#000" />;
@@ -47,7 +104,7 @@ export default function OrderDetailScreen() {
         <ScrollView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.replace('/(tabs)/orders')}>
+                <TouchableOpacity onPress={() => router.replace('/orders')}>
                     <Ionicons name="arrow-back" size={24} />
                 </TouchableOpacity>
 
@@ -55,21 +112,8 @@ export default function OrderDetailScreen() {
                 <View style={{ width: 24 }} />
             </View>
 
-            {/* Trạng thái đơn */}
-            <View style={styles.progress}>
-                <View style={styles.step}>
-                    <View
-                        style={[styles.circle, order.status !== 'Chờ xử lý' && styles.activeCircle]}
-                    />
-                    <Text style={styles.stepText}>Chờ xác nhận</Text>
-                </View>
-                <View style={styles.step}>
-                    <View
-                        style={[styles.circle, order.status === 'Đã giao' && styles.activeCircle]}
-                    />
-                    <Text style={styles.stepText}>Đã giao</Text>
-                </View>
-            </View>
+            {/* ✅ Thanh trạng thái đơn hàng */}
+            {renderOrderProgress(order.status)}
 
             {/* Địa chỉ nhận hàng */}
             <View style={styles.section}>
@@ -100,7 +144,7 @@ export default function OrderDetailScreen() {
                 <Text>Ngày đặt hàng: {order.date}</Text>
                 <Text>Tổng tiền hàng: {order.total.toLocaleString()} VND</Text>
                 <Text style={{ fontWeight: 'bold' }}>
-                    Thành tiền: {(order.total + 30000).toLocaleString()} VND
+                    Thành tiền: {(order.total).toLocaleString()} VND
                 </Text>
             </View>
 
@@ -110,7 +154,7 @@ export default function OrderDetailScreen() {
                     style={styles.btnBlack}
                     onPress={async () => {
                         try {
-                            const res = await fetch(`http://192.168.1.11:3000/orders/${order.id}`, {
+                            const res = await fetch(`http://192.168.1.13:3000/orders/${order.id}`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ status: 'Đã huỷ' }),
@@ -119,7 +163,6 @@ export default function OrderDetailScreen() {
                             if (!res.ok) throw new Error('Huỷ đơn thất bại');
 
                             alert('Đã huỷ đơn hàng');
-                            // 👉 Quay về danh sách đơn hàng sau khi huỷ
                             router.replace('/(tabs)/orders');
                         } catch (err) {
                             console.error('Lỗi huỷ đơn:', err);
@@ -129,10 +172,9 @@ export default function OrderDetailScreen() {
                 >
                     <Text style={{ color: '#fff' }}>Huỷ đơn</Text>
                 </TouchableOpacity>
-
             ) : (
                 <TouchableOpacity style={styles.btnGray}>
-                    <Text>Đang giao</Text>
+                    <Text>{order.status}</Text>
                 </TouchableOpacity>
             )}
         </ScrollView>
@@ -148,17 +190,31 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     title: { fontSize: 18, fontWeight: 'bold' },
-    progress: { flexDirection: 'row', justifyContent: 'space-around', marginVertical: 16 },
-    step: { alignItems: 'center' },
-    circle: {
-        width: 16,
-        height: 16,
-        borderRadius: 8,
-        backgroundColor: '#ccc',
-        marginBottom: 6,
+    // ✅ Styles cho thanh tiến trình đơn hàng
+    progressContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginVertical: 16,
+        paddingHorizontal: 10,
     },
-    activeCircle: { backgroundColor: 'green' },
-    stepText: { fontSize: 12 },
+    step: {
+        alignItems: 'center',
+        width: 90,
+    },
+    stepLabel: {
+        fontSize: 12,
+        color: '#888',
+        marginTop: 4,
+        textAlign: 'center',
+    },
+    line: {
+        height: 2,
+        width: 20,
+        backgroundColor: '#ccc',
+        marginHorizontal: 5,
+    },
+
     section: { paddingHorizontal: 16, marginBottom: 12 },
     sectionTitle: { fontWeight: 'bold', marginBottom: 6 },
     addressBox: {

@@ -11,11 +11,9 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { useAppSelector } from '../redux/store';
 import uuid from 'react-native-uuid';
-import { useAppDispatch } from '../redux/store';
-import { clearCart } from '../redux/slices/cartSlice';
 import { removeItemsByIds } from '../redux/slices/cartSlice'; // thêm dòng này
+import { useAppDispatch, useAppSelector } from '../redux/store';
 
 
 export default function CheckoutScreen() {
@@ -47,7 +45,7 @@ export default function CheckoutScreen() {
                 if (!currentUser) return;
 
                 try {
-                    const response = await fetch(`http://192.168.1.11:3000/users/${currentUser.id}`);
+                    const response = await fetch(`http://192.168.1.13:3000/users/${currentUser.id}`);
                     const userData = await response.json();
                     setAddress(userData.address || '');
                     setName(userData.name || '');
@@ -91,7 +89,7 @@ export default function CheckoutScreen() {
         };
 
         try {
-            const response = await fetch('http://192.168.1.11:3000/orders', {
+            const response = await fetch('http://192.168.1.13:3000/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newOrder),
@@ -111,7 +109,7 @@ export default function CheckoutScreen() {
     return (
         <ScrollView style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.replace('/(tabs)/Home')}>
+                <TouchableOpacity onPress={() => router.replace('/(tabs)/cart')}>
                     <Ionicons name="arrow-back" size={24} />
                 </TouchableOpacity>
 
@@ -150,33 +148,29 @@ export default function CheckoutScreen() {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Phương thức thanh toán</Text>
                 <View style={styles.paymentRow}>
-                    <Text style={styles.method}>💳 Card</Text>
-                    <Text style={styles.method}>💵 Cash</Text>
-                    <Text style={styles.method}>Pay</Text>
+                    <Text style={styles.method}>Thanh Toán khi nhận hàng</Text>
                 </View>
-                <View style={styles.cardInfo}>
-                    <Text style={{ fontWeight: 'bold' }}>VISA **** **** **** 2512</Text>
-                    <TouchableOpacity>
-                        <Ionicons name="create-outline" size={20} />
-                    </TouchableOpacity>
-                </View>
+
             </View>
 
             {/* Tổng tiền */}
             <View style={styles.section}>
                 <View style={styles.rowBetween}>
                     <Text style={styles.grayText}>Tổng tiền</Text>
-                    <Text style={styles.blackText}>${total}</Text>
+                    <Text style={styles.blackText}>{total.toLocaleString('vi-VN')} VND</Text>
                 </View>
                 <View style={styles.rowBetween}>
                     <Text style={styles.totalLabel}>Tổng</Text>
-                    <Text style={styles.totalValue}>${grandTotal}</Text>
+                    <Text style={styles.totalValue}>
+                        {grandTotal.toLocaleString('vi-VN')} VND
+                    </Text>
                 </View>
+
             </View>
 
             {/* Nút đặt hàng */}
             <TouchableOpacity style={styles.orderBtn} onPress={handlePlaceOrder}>
-                <Text style={styles.orderText}>Place Order</Text>
+                <Text style={styles.orderText}>Đặt hàng</Text>
             </TouchableOpacity>
 
             {/* Modal đặt hàng thành công */}

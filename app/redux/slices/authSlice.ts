@@ -23,7 +23,6 @@ interface AuthState {
 
 const API = 'http://192.168.1.13:3000';
 
-
 // ✅ Hàm tạo ID ngẫu nhiên
 const generateId = () => Math.random().toString(36).substring(2, 10);
 
@@ -34,43 +33,39 @@ export const fetchUsers = createAsyncThunk<User[]>('auth/fetchUsers', async () =
 });
 
 // ✅ Thunk: Đăng ký người dùng mới
-export const registerUser = createAsyncThunk<User, User>(
+export const registerUser = createAsyncThunk(
   'auth/registerUser',
-  async (user, { rejectWithValue }) => {
+  async (user: any, { rejectWithValue }) => {
     try {
-      // Gán ID mới
       const newUser = { ...user, id: generateId() };
 
       // Tạo user
       const res = await axios.post(`${API}/users`, newUser);
 
-      // Tạo các bảng liên quan
+      // Tạo cart
       await axios.post(`${API}/carts`, {
         id: generateId(),
         userId: newUser.id,
         items: [],
       });
 
-      await axios.post(`${API}/wishlists`, {
-        id: generateId(),
-        userId: newUser.id,
-        items: [],
-      });
-
+      // ✅ Tạo order (chỉ tạo 1 lần, chưa có đơn)
       await axios.post(`${API}/orders`, {
         id: generateId(),
         userId: newUser.id,
-        status: 'Chưa có đơn hàng',
         total: 0,
-        items: [],
+        status: 'Chưa có đơn hàng',
+        items: [], // hoặc null nếu bạn muốn
       });
 
       return res.data;
     } catch (err: any) {
+      console.log('❌ Đăng ký thất bại:', err.response?.data || err.message);
       return rejectWithValue(err.response?.data || 'Đăng ký thất bại');
     }
   }
 );
+
 
 // ✅ Thunk: Đăng nhập
 export const loginUser = createAsyncThunk<User, { email: string; password: string }>(

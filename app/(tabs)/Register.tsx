@@ -1,18 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
-} from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, registerUser } from "../redux/slices/authSlice";
-import { RootState } from "../redux/store";
+  View,
+} from 'react-native';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { fetchUsers, registerUser } from '../redux/slices/authSlice';
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
@@ -21,55 +20,50 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState('');
   const [address, setAddress] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // 👁 Hiện/ẩn mật khẩu
+  const [showPassword, setShowPassword] = useState(false);
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const router = useRouter();
-  const { users } = useSelector((state: RootState) => state.auth);
+  const { users } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    dispatch(fetchUsers() as any);
+    dispatch(fetchUsers());
   }, []);
 
   const handleRegister = async () => {
-    //  Kiểm tra thiếu thông tin
     if (!name || !email || !phone || !password || !address) {
       setErrorMessage('Vui lòng điền đầy đủ tất cả các trường.');
       return;
     }
 
-    //  Email hợp lệ
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setErrorMessage('Email không hợp lệ.');
       return;
     }
 
-    //  SĐT Việt Nam hợp lệ
     const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
     if (!phoneRegex.test(phone)) {
-      setErrorMessage('Số điện thoại không hợp lệ (phải đủ 10 số và đúng đầu số Việt Nam).');
+      setErrorMessage('Số điện thoại không hợp lệ.');
       return;
     }
 
-    //  Mật khẩu >= 6 ký tự
     if (password.length < 6) {
       setErrorMessage('Mật khẩu phải từ 6 ký tự trở lên.');
       return;
     }
 
-    //  Email hoặc sđt trùng
-    const isExist = users.some(user => user.email === email || user.phone === phone);
+    const isExist = users.some(
+      (user) => user.email === email || user.phone === phone
+    );
     if (isExist) {
       setErrorMessage('Email hoặc số điện thoại đã tồn tại!');
       return;
     }
 
-    //  Xóa lỗi trước khi đăng ký
     setErrorMessage('');
 
     const newUser = {
-      id: generateId(),
       name,
       email,
       phone,
@@ -78,27 +72,21 @@ const RegisterScreen = () => {
       role: 'user',
     };
 
-    dispatch(registerUser(newUser) as any)
-      .then(async (res: any) => {
-        if (!res.error) {
-          // Lưu thông tin vào AsyncStorage sau khi đăng ký
-          await AsyncStorage.setItem('currentUser', JSON.stringify(newUser));
+    try {
+      const res = await dispatch(registerUser(newUser as any)).unwrap(); 
+      await AsyncStorage.setItem('currentUser', JSON.stringify(res));
 
-          Alert.alert("Thành công", "Đăng ký tài khoản thành công!");
-          setName('');
-          setEmail('');
-          setPhone('');
-          setPassword('');
-          setAddress('');
-          router.replace('/(tabs)/Login');
-        } else {
-          setErrorMessage('Đăng ký thất bại. Vui lòng thử lại.');
-        }
-      })
-      .catch(() => setErrorMessage('Đã xảy ra lỗi khi đăng ký.'));
+      Alert.alert('Thành công', 'Đăng ký tài khoản thành công!');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setPassword('');
+      setAddress('');
+      router.replace('/(tabs)/Login');
+    } catch (error) {
+      setErrorMessage('Đăng ký thất bại. Vui lòng thử lại.');
+    }
   };
-
-  const generateId = () => Math.random().toString(36).substr(2, 9);
 
   return (
     <View style={styles.container}>
@@ -127,7 +115,6 @@ const RegisterScreen = () => {
         keyboardType="phone-pad"
       />
 
-      {/*  Mật khẩu + icon toggle */}
       <View style={styles.passwordContainer}>
         <TextInput
           style={styles.passwordInput}
@@ -153,7 +140,7 @@ const RegisterScreen = () => {
       <TouchableOpacity
         style={[
           styles.button,
-          !(name && email && phone && password && address) && { backgroundColor: '#aaa' }
+          !(name && email && phone && password && address) && { backgroundColor: '#aaa' },
         ]}
         onPress={handleRegister}
         disabled={!(name && email && phone && password && address)}
@@ -174,49 +161,61 @@ const RegisterScreen = () => {
 export default RegisterScreen;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff', justifyContent: 'center' },
-  title: { fontSize: 26, fontWeight: 'bold', marginBottom: 10, color: '#1e90ff', textAlign: 'center' },
-  subtitle: { fontSize: 16, color: '#666', marginBottom: 20, textAlign: 'center' },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingHorizontal: 24,
+    paddingTop: 80,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 24,
+  },
   input: {
-    borderWidth: 1, borderColor: '#ccc',
-    borderRadius: 8, padding: 12, marginBottom: 12,
-    fontSize: 16, backgroundColor: '#fff'
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 16,
   },
   passwordContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
+    borderRadius: 10,
     paddingHorizontal: 12,
-    marginBottom: 12,
-    backgroundColor: '#fff'
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginBottom: 16,
   },
   passwordInput: {
     flex: 1,
-    paddingVertical: 12,
-    fontSize: 16,
+  },
+  button: {
+    backgroundColor: '#1e90ff',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   errorText: {
     color: 'red',
     marginBottom: 10,
-    textAlign: 'center'
-  },
-  button: {
-    backgroundColor: '#1e90ff',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 5
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold'
   },
   loginPrompt: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 20
-  }
+    marginTop: 20,
+  },
 });

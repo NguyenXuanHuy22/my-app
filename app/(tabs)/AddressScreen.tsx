@@ -21,7 +21,7 @@ export default function AddressScreen() {
             if (!currentUser) return;
 
             try {
-                const res = await fetch(`http://192.168.1.11:3000/users/${currentUser.id}`);
+                const res = await fetch(`http://192.168.1.13:3000/users/${currentUser.id}`);
                 const user = await res.json();
                 setAddress(user.address || '');
                 setName(user.name || '');
@@ -50,7 +50,7 @@ export default function AddressScreen() {
                 address,
             };
 
-            await fetch(`http://192.168.1.11:3000/users/${currentUser.id}`, {
+            await fetch(`http://192.168.1.13:3000/users/${currentUser.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedUser),

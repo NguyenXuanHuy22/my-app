@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import {
-  View,
-  Text,
   FlatList,
-  TouchableOpacity,
   Image,
   StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import { useAppSelector } from '../redux/store';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
-
 
 // ✅ Kiểu dữ liệu
 interface OrderItem {
@@ -38,17 +36,20 @@ interface Order {
 export default function OrdersScreen() {
   const currentUser = useAppSelector(state => state.auth.user);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [selectedTab, setSelectedTab] = useState<'pending' | 'delivered'>('pending');
+  const [selectedTab, setSelectedTab] = useState<'pending' | 'shipping' | 'delivered'>('pending');
   const router = useRouter();
 
-  // ✅ Thêm dòng này
+  // ✅ Lọc đơn hàng theo tab
   const filteredOrders = orders.filter(order =>
     order.status !== 'Đã huỷ' && (
       selectedTab === 'pending'
         ? order.status === 'Chờ xử lý'
-        : order.status === 'Đã giao'
+        : selectedTab === 'shipping'
+          ? order.status === 'Đang giao hàng'
+          : order.status === 'Đã giao'
     )
   );
+
 
   useFocusEffect(
     useCallback(() => {
@@ -56,8 +57,9 @@ export default function OrdersScreen() {
 
       const fetchOrders = async () => {
         try {
-          const res = await fetch(`http://192.168.1.11:3000/orders?userId=${currentUser.id}`);
+          const res = await fetch(`http://192.168.1.13:3000/orders?userId=${currentUser.id}`);
           const data = await res.json();
+          console.log('Dữ liệu từ server:', data);
           setOrders(data);
         } catch (err) {
           console.error('Lỗi khi tải đơn hàng:', err);
@@ -70,7 +72,7 @@ export default function OrdersScreen() {
 
   const handleCancelOrder = async (orderId: string) => {
     try {
-      const res = await fetch(`http://192.168.1.11:3000/orders/${orderId}`, {
+      const res = await fetch(`http://192.168.1.13:3000/orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'Đã huỷ' }),
@@ -78,7 +80,6 @@ export default function OrdersScreen() {
 
       if (!res.ok) throw new Error('Không thể huỷ đơn hàng');
 
-      // Cập nhật lại danh sách
       setOrders(prev => prev.map(order =>
         order.id === orderId ? { ...order, status: 'Đã huỷ' } : order
       ));
@@ -88,7 +89,6 @@ export default function OrdersScreen() {
     }
   };
 
-  // ✅ Sửa kiểu dữ liệu cho renderItem
   const renderItem = ({ item }: { item: Order }) => (
     <TouchableOpacity
       onPress={() => router.push({ pathname: '/order-detail', params: { orderId: item.id } })}
@@ -114,22 +114,15 @@ export default function OrdersScreen() {
 
       <View style={styles.footer}>
         <Text style={{ fontWeight: 'bold' }}>Tổng: ₫{item.total.toLocaleString()}</Text>
-        {item.items.length > 0 && (
+        {item.items.length > 0 && item.status === 'Chờ xử lý' && (
           <TouchableOpacity
             style={styles.cancelBtn}
-            onPress={() => {
-              if (item.status === 'Đã giao') {
-                alert('Chức năng đánh giá chưa hỗ trợ.');
-              } else {
-                handleCancelOrder(item.id);
-              }
-            }}
+            onPress={() => handleCancelOrder(item.id)}
           >
-            <Text style={{ color: '#fff', fontSize: 13 }}>
-              {item.status === 'Đã giao' ? 'Đánh giá' : 'Huỷ đơn'}
-            </Text>
+            <Text style={{ color: '#fff', fontSize: 13 }}>Huỷ đơn</Text>
           </TouchableOpacity>
         )}
+
       </View>
     </TouchableOpacity>
   );
@@ -138,7 +131,7 @@ export default function OrdersScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.replace('/(tabs)/Home')}>
+        <TouchableOpacity onPress={() => router.replace('/(tabs)/AccountScreen')}>
           <Ionicons name="arrow-back" size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Đơn hàng của tôi</Text>
@@ -151,15 +144,25 @@ export default function OrdersScreen() {
           onPress={() => setSelectedTab('pending')}
           style={[styles.tabBtn, selectedTab === 'pending' && styles.activeTab]}
         >
-          <Text style={selectedTab === 'pending' && styles.activeText}>
+          <Text style={[styles.tabText, selectedTab === 'pending' && styles.activeText]}>
             Chờ xử lý
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setSelectedTab('shipping')}
+          style={[styles.tabBtn, selectedTab === 'shipping' && styles.activeTab]}
+        >
+          <Text style={[styles.tabText, selectedTab === 'shipping' && styles.activeText]}>
+            Đang giao
+          </Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => setSelectedTab('delivered')}
           style={[styles.tabBtn, selectedTab === 'delivered' && styles.activeTab]}
         >
-          <Text style={selectedTab === 'delivered' && styles.activeText}>
+          <Text style={[styles.tabText, selectedTab === 'delivered' && styles.activeText]}>
             Đã giao
           </Text>
         </TouchableOpacity>
@@ -169,7 +172,11 @@ export default function OrdersScreen() {
       {filteredOrders.length === 0 ? (
         <View style={styles.empty}>
           <Text style={{ color: '#999' }}>
-            Không có đơn hàng {selectedTab === 'pending' ? 'chờ xử lý' : 'đã giao'}.
+            Không có đơn hàng {
+              selectedTab === 'pending' ? 'chờ xử lý' :
+                selectedTab === 'shipping' ? 'đang giao' :
+                  'đã giao'
+            }.
           </Text>
         </View>
       ) : (
@@ -193,15 +200,27 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   headerTitle: { fontWeight: 'bold', fontSize: 18 },
-  tabs: { flexDirection: 'row', justifyContent: 'center', marginBottom: 10 },
+  tabs: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
   tabBtn: {
     paddingVertical: 8,
-    paddingHorizontal: 20,
     borderBottomWidth: 2,
     borderColor: 'transparent',
   },
-  activeTab: { borderColor: '#000' },
-  activeText: { fontWeight: 'bold', color: '#000' },
+  tabText: {
+    fontSize: 14,
+    color: '#555',
+  },
+  activeTab: {
+    borderColor: '#000',
+  },
+  activeText: {
+    fontWeight: 'bold',
+    color: '#000',
+  },
   empty: { alignItems: 'center', marginTop: 50 },
   card: {
     backgroundColor: '#f9f9f9',
@@ -218,18 +237,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
-  button: {
-    backgroundColor: '#000',
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-  },
   cancelBtn: {
     backgroundColor: '#000',
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderRadius: 8,
-    alignSelf: 'flex-end', // ✅ Căn sang phải
-    maxWidth: 100,         // ✅ Không cho quá dài
+    alignSelf: 'flex-end',
+    maxWidth: 100,
   },
 });

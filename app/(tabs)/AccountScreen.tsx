@@ -56,7 +56,7 @@ const AccountScreen = () => {
                         <MenuItem
                             icon={<MaterialIcons name="receipt-long" size={20} color="#000" />}
                             text="Quản lý đơn hàng"
-                            onPress={() => router.push('./admin/manage-oders')}
+                            onPress={() => router.push('./admin/manage-orders')}
                         />
                         <MenuItem
                             icon={
