@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from '../redux/slices/authSlice';
+import { setUserLocal } from '../redux/slices/userSlice';
 import { AppDispatch, RootState } from '../redux/store';
 
 // Icon
@@ -26,33 +27,34 @@ const LoginScreen = () => {
   const router = useRouter();
   const { error, loading } = useSelector((state: RootState) => state.auth);
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      setInputError('Vui lòng nhập đầy đủ Email và Mật khẩu!');
-      return;
-    }
-    // kiểm tra mail
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setInputError('Email không hợp lệ!');
-      return;
-    }
+ const handleLogin = async () => {
+  if (!email.trim() || !password.trim()) {
+    setInputError('Vui lòng nhập đầy đủ Email và Mật khẩu!');
+    return;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    setInputError('Email không hợp lệ!');
+    return;
+  }
+  if (password.length < 6) {
+    setInputError('Mật khẩu phải có ít nhất 6 ký tự!');
+    return;
+  }
 
-    if (password.length < 6) {
-      setInputError('Mật khẩu phải có ít nhất 6 ký tự!');
-      return;
-    }
+  setInputError('');
 
-    setInputError('');
+  const resultAction = await dispatch(loginUser({ email, password }));
+  if (loginUser.fulfilled.match(resultAction)) {
+    // 🟢 Đồng bộ dữ liệu user vào userSlice
+    dispatch(setUserLocal(resultAction.payload));
 
-    const resultAction = await dispatch(loginUser({ email, password }));
-    if (loginUser.fulfilled.match(resultAction)) {
-      Alert.alert('Thành công', 'Đăng nhập thành công!');
-      router.replace('/(tabs)/Home');
-    } else {
-      Alert.alert('Thất bại', resultAction.payload as string);
-    }
-  };
+    Alert.alert('Thành công', 'Đăng nhập thành công!');
+    router.replace('/(tabs)/Home');
+  } else {
+    Alert.alert('Thất bại', resultAction.payload as string);
+  }
+};
 
   return (
     <View style={styles.container}>

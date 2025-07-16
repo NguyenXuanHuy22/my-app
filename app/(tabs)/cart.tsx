@@ -37,7 +37,7 @@ export default function CartScreen() {
         const fetchCart = async () => {
             if (currentUser) {
                 try {
-                    const response = await fetch(`http://192.168.1.11:3000/carts?userId=${currentUser.id}`);
+                    const response = await fetch(`http://192.168.1.13:3000/carts?userId=${currentUser.id}`);
                     const carts = await response.json();
                     const userCart = carts[0] || { items: [] };
 
@@ -66,7 +66,7 @@ export default function CartScreen() {
         if (!currentUser) return;
 
         try {
-            const response = await fetch(`http://192.168.1.11:3000/carts?userId=${currentUser.id}`);
+            const response = await fetch(`http://192.168.1.13:3000/carts?userId=${currentUser.id}`);
             const carts = await response.json();
             const userCart = carts[0];
 
@@ -77,7 +77,7 @@ export default function CartScreen() {
                         : item
                 );
 
-                await fetch(`http://192.168.1.11:3000/carts/${userCart.id}`, {
+                await fetch(`http://192.168.1.13:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...userCart, items: updatedItems }),
@@ -103,7 +103,7 @@ export default function CartScreen() {
 
     const handleRemoveFromCart = async (productId: string, size: string, userId: string, itemKey: string) => {
         try {
-            const response = await fetch(`http://192.168.1.11:3000/carts?userId=${userId}`);
+            const response = await fetch(`http://192.168.1.13:3000/carts?userId=${userId}`);
             const carts = await response.json();
             const userCart = carts[0];
 
@@ -112,7 +112,7 @@ export default function CartScreen() {
                     (item: any) => !(item.productId === productId && item.size === size)
                 );
 
-                await fetch(`http://192.168.1.11:3000/carts/${userCart.id}`, {
+                await fetch(`http://192.168.1.13:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userCart),
