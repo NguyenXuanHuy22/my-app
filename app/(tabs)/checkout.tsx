@@ -12,6 +12,10 @@ import {
     View,
 } from 'react-native';
 import { useAppSelector } from '../redux/store';
+import uuid from 'react-native-uuid';
+import { useAppDispatch } from '../redux/store';
+import { clearCart } from '../redux/slices/cartSlice';
+import { removeItemsByIds } from '../redux/slices/cartSlice'; // thêm dòng này
 
 
 export default function CheckoutScreen() {
@@ -21,51 +25,85 @@ export default function CheckoutScreen() {
     const [address, setAddress] = useState('');
     const currentUser = useAppSelector(state => state.auth.user);
     const cartItems = useAppSelector(state =>
-        state.cart.items.filter(item => item.userId === currentUser?.id && selectedIds.includes(item.id))
+        state.cart.items.filter(item => {
+            const key = `${item.id}_${item.size}`;
+            return item.userId === currentUser?.id && selectedIds.includes(key);
+        })
     );
-
     const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shipping = 80;
     const grandTotal = total + shipping;
 
     const [modalVisible, setModalVisible] = useState(false);
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+
+    const dispatch = useAppDispatch(); // Thêm vào component
 
     // Khi màn hình được focus lại (quay lại từ AddressScreen)
     useFocusEffect(
         useCallback(() => {
-            const fetchUserAddress = async () => {
+            const fetchUserInfo = async () => {
                 if (!currentUser) return;
 
                 try {
-                    const response = await fetch(`http://192.168.1.13:3000/users/${currentUser.id}`);
+                    const response = await fetch(`http://192.168.1.11:3000/users/${currentUser.id}`);
                     const userData = await response.json();
                     setAddress(userData.address || '');
+                    setName(userData.name || '');
+                    setPhone(userData.phone || '');
                 } catch (error) {
                     console.error('Lỗi khi lấy địa chỉ:', error);
-                    setAddress(''); // fallback
+                    setAddress('');
                 }
             };
 
-            fetchUserAddress();
+            fetchUserInfo();
         }, [currentUser])
     );
 
 
     const handlePlaceOrder = async () => {
+        if (!currentUser) return;
+
+        const orderId = (uuid.v4() as string).slice(0, 8);
+
+        const newOrder = {
+            id: orderId,
+            userId: currentUser.id,
+            name,
+            phone,
+            address,
+            status: 'Chờ xử lý',
+            total: grandTotal,
+            date: new Date().toISOString(),
+            items: cartItems.map(item => ({
+                orderDetailId: (uuid.v4() as string).slice(0, 8),
+                productId: item.id,
+                name: item.name,
+                image: item.image,
+                price: item.price,
+                quantity: item.quantity,
+                size: item.size,
+                color: 'Trắng',
+                subtotal: item.price * item.quantity,
+            })),
+        };
+
         try {
-            await fetch('http://192.168.1.13:3000/orders', {
+            const response = await fetch('http://192.168.1.11:3000/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    userId: currentUser?.id,
-                    items: cartItems,
-                    total: grandTotal,
-                    status: 'Chờ xử lý',
-                }),
+                body: JSON.stringify(newOrder),
             });
 
+            if (!response.ok) throw new Error('Không thể lưu đơn hàng');
+
+            // ✅ Xoá chỉ những sản phẩm đã chọn
+            dispatch(removeItemsByIds({ userId: currentUser.id, keysToRemove: selectedIds }));
             setModalVisible(true);
         } catch (err) {
+            console.error(err);
             alert('Lỗi: Không thể đặt hàng');
         }
     };
@@ -157,7 +195,7 @@ export default function CheckoutScreen() {
                             style={styles.trackBtn}
                             onPress={() => {
                                 setModalVisible(false);
-                                router.replace('/');
+                                router.replace('/(tabs)/orders');
                             }}
                         >
                             <Text style={styles.trackText}>Track Your Order</Text>

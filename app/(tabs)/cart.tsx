@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-
 import { useEffect, useState } from 'react';
 import {
     Alert,
@@ -25,19 +24,20 @@ export default function CartScreen() {
         state.cart.items.filter(item => item.userId === currentUser?.id)
     );
 
-    // ✅ Tính tổng tiền chỉ với sản phẩm được chọn
+    const getKey = (item: any) => `${item.id}_${item.size}`;
+
     const total = cartItems
-        .filter(item => selectedItems.includes(item.id))
+        .filter(item => selectedItems.includes(getKey(item)))
         .reduce((sum, item) => sum + item.price * item.quantity, 0);
+
     const shipping = total > 0 ? 800 : 0;
     const grandTotal = total + shipping;
 
-    // ✅ Load giỏ hàng từ db.json khi user thay đổi
     useEffect(() => {
         const fetchCart = async () => {
             if (currentUser) {
                 try {
-                    const response = await fetch(`http://192.168.1.13:3000/carts?userId=${currentUser.id}`);
+                    const response = await fetch(`http://192.168.1.11:3000/carts?userId=${currentUser.id}`);
                     const carts = await response.json();
                     const userCart = carts[0] || { items: [] };
 
@@ -62,26 +62,29 @@ export default function CartScreen() {
         fetchCart();
     }, [currentUser, dispatch]);
 
-    const handleUpdateQuantity = async (productId: string, newQty: number) => {
+    const handleUpdateQuantity = async (productId: string, size: string, newQty: number) => {
         if (!currentUser) return;
 
         try {
-            const response = await fetch(`http://192.168.1.13:3000/carts?userId=${currentUser.id}`);
+            const response = await fetch(`http://192.168.1.11:3000/carts?userId=${currentUser.id}`);
             const carts = await response.json();
             const userCart = carts[0];
 
             if (userCart) {
                 const updatedItems = userCart.items.map((item: any) =>
-                    item.productId === productId ? { ...item, quantity: newQty } : item
+                    item.productId === productId && item.size === size
+                        ? { ...item, quantity: newQty }
+                        : item
                 );
 
-                await fetch(`http://192.168.1.13:3000/carts/${userCart.id}`, {
+                await fetch(`http://192.168.1.11:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...userCart, items: updatedItems }),
                 });
 
-                dispatch(updateQuantity({ id: productId, quantity: newQty, userId: currentUser.id }));
+                // ✅ Thêm size vào dispatch
+                dispatch(updateQuantity({ id: productId, size, quantity: newQty, userId: currentUser.id }));
             }
         } catch (error) {
             console.error('Lỗi khi cập nhật số lượng:', error);
@@ -90,31 +93,33 @@ export default function CartScreen() {
     };
 
 
-    // ✅ Xử lý tích chọn
-    const toggleSelectItem = (productId: string) => {
+    const toggleSelectItem = (itemKey: string) => {
         setSelectedItems(prev =>
-            prev.includes(productId)
-                ? prev.filter(id => id !== productId)
-                : [...prev, productId]
+            prev.includes(itemKey)
+                ? prev.filter(id => id !== itemKey)
+                : [...prev, itemKey]
         );
     };
 
-    // ✅ Xử lý xóa sản phẩm
-    const handleRemoveFromCart = async (productId: string, userId: string) => {
+    const handleRemoveFromCart = async (productId: string, size: string, userId: string, itemKey: string) => {
         try {
-            const response = await fetch(`http://192.168.1.13:3000/carts?userId=${userId}`);
+            const response = await fetch(`http://192.168.1.11:3000/carts?userId=${userId}`);
             const carts = await response.json();
             const userCart = carts[0];
 
             if (userCart) {
-                userCart.items = userCart.items.filter((item: any) => item.productId !== productId);
-                await fetch(`http://192.168.1.13:3000/carts/${userCart.id}`, {
+                userCart.items = userCart.items.filter(
+                    (item: any) => !(item.productId === productId && item.size === size)
+                );
+
+                await fetch(`http://192.168.1.11:3000/carts/${userCart.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(userCart),
                 });
-                dispatch(removeFromCart({ id: productId, userId }));
-                setSelectedItems(prev => prev.filter(id => id !== productId));
+
+                dispatch(removeFromCart({ id: productId, size, userId }));
+                setSelectedItems(prev => prev.filter(id => id !== itemKey));
             }
         } catch (error) {
             console.error('Lỗi khi xóa sản phẩm:', error);
@@ -130,60 +135,55 @@ export default function CartScreen() {
                 <Text style={{ fontSize: 16, marginTop: 20 }}>
                     Chưa có sản phẩm nào trong giỏ hàng
                 </Text>
-            ) : ( 
-                <FlatList //test
+            ) : (
+                <FlatList
                     data={cartItems}
-                    keyExtractor={(item) => `${item.id}-${item.size}-${item.userId}`} // ✅ Key duy nhất
-                    renderItem={({ item }) => (
-                        <View style={styles.itemRow}>
-                            {/* Nút chọn hình tròn */}
-                            <TouchableOpacity onPress={() => toggleSelectItem(item.id)}>
-                                <View
-                                    style={[
-                                        styles.circle,
-                                        selectedItems.includes(item.id) && styles.circleSelected,
-                                    ]}
-                                />
-                            </TouchableOpacity>
+                    keyExtractor={(item) => getKey(item)}
+                    renderItem={({ item }) => {
+                        const itemKey = getKey(item);
+                        return (
+                            <View style={styles.itemRow}>
+                                <TouchableOpacity onPress={() => toggleSelectItem(itemKey)}>
+                                    <View
+                                        style={[
+                                            styles.circle,
+                                            selectedItems.includes(itemKey) && styles.circleSelected,
+                                        ]}
+                                    />
+                                </TouchableOpacity>
 
-                            <Image source={{ uri: item.image }} style={styles.image} />
-                            <View style={styles.info}>
-                                <Text style={styles.name}>{item.name}</Text>
-                                <Text>Size: {item.size}</Text>
-                                <Text>{item.price.toLocaleString()} VND</Text>
-                                <View style={styles.qtyRow}>
-                                    <TouchableOpacity
-                                        onPress={() =>
-                                            handleUpdateQuantity(item.id, item.quantity - 1)
-                                        }
-                                        disabled={item.quantity <= 1}
-                                    >
-                                        <Text style={styles.qtyBtn}>-</Text>
-                                    </TouchableOpacity>
-                                    <Text>{item.quantity}</Text>
-                                    <TouchableOpacity
-                                        onPress={() =>
-                                            handleUpdateQuantity(item.id, item.quantity + 1)
-                                        }
-                                    >
-                                        <Text style={styles.qtyBtn}>+</Text>
-                                    </TouchableOpacity>
+                                <Image source={{ uri: item.image }} style={styles.image} />
+                                <View style={styles.info}>
+                                    <Text style={styles.name}>{item.name}</Text>
+                                    <Text>Size: {item.size}</Text>
+                                    <Text>{item.price.toLocaleString()} VND</Text>
+                                    <View style={styles.qtyRow}>
+                                        <TouchableOpacity
+                                            onPress={() => handleUpdateQuantity(item.id, item.size, item.quantity - 1)}
+                                            disabled={item.quantity <= 1}
+                                        >
+                                            <Text style={styles.qtyBtn}>-</Text>
+                                        </TouchableOpacity>
+                                        <Text>{item.quantity}</Text>
+                                        <TouchableOpacity
+                                            onPress={() => handleUpdateQuantity(item.id, item.size, item.quantity + 1)}
+                                        >
+                                            <Text style={styles.qtyBtn}>+</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
+                                <TouchableOpacity
+                                    onPress={() => handleRemoveFromCart(item.id, item.size, currentUser?.id || '', itemKey)}
+                                >
+                                    <Ionicons name="trash-outline" size={24} color="red" />
+                                </TouchableOpacity>
                             </View>
-                            <TouchableOpacity
-                                onPress={() => handleRemoveFromCart(item.id, currentUser?.id || '')}
-                            >
-                                <Ionicons name="trash-outline" size={24} color="red" />
-                            </TouchableOpacity>
-                        </View>
-                    )}
+                        );
+                    }}
                     contentContainerStyle={{ paddingBottom: 180 }}
                 />
-
-
             )}
 
-            {/* Tổng tiền */}
             {cartItems.length > 0 && (
                 <View style={[styles.totalBox, { marginBottom: 80 }]}>
                     <Text>Tạm tính: {total.toLocaleString()} VND</Text>
@@ -200,14 +200,12 @@ export default function CartScreen() {
                                 params: { selected: JSON.stringify(selectedItems) },
                             })
                         }
-
                     >
                         <Text style={styles.orderText}>Đặt hàng →</Text>
                     </TouchableOpacity>
                 </View>
             )}
 
-            {/* Menu dưới */}
             <View style={styles.bottomMenu}>
                 <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/Home')}>
                     <Ionicons name="home-outline" size={24} color="black" />
@@ -224,13 +222,11 @@ export default function CartScreen() {
                     <Text style={styles.menuText}>Account</Text>
                 </TouchableOpacity>
             </View>
-
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-
     container: { flex: 1, padding: 16, backgroundColor: '#fff' },
     title: { fontSize: 22, fontWeight: 'bold', marginBottom: 12 },
     itemRow: {
