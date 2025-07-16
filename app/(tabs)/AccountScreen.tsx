@@ -56,7 +56,7 @@ const AccountScreen = () => {
                         <MenuItem
                             icon={<MaterialIcons name="receipt-long" size={20} color="#000" />}
                             text="Quản lý đơn hàng"
-                            onPress={() => router.push('/admin/manage-products')}
+                            onPress={() => router.push('./admin/manage-oders')}
                         />
                         <MenuItem
                             icon={
@@ -102,7 +102,7 @@ const AccountScreen = () => {
                 <TouchableOpacity
                     style={styles.logoutButton}
                     onPress={() => {
-                        // TODO: dispatch logout và router.replace('/login')
+                        router.replace('/(tabs)/Login')
                     }}
                 >
                     <AntDesign name="logout" size={20} color="red" />

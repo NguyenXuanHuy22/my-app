@@ -17,7 +17,10 @@ import authReducer from './slices/authSlice';
 import bannerReducer from './slices/bannerSlice';
 import cartReducer from './slices/cartSlice';
 import chatReducer from './slices/chatSlice';
+import orderReducer from './slices/ordersSlice';
 import productsReducer from './slices/productsSlice';
+import userReducer from './slices/userSlice';
+
 
 
 //  1. Cấu hình persist
@@ -34,6 +37,8 @@ const rootReducer = combineReducers({
   products: productsReducer,
   banners: bannerReducer,
   chat: chatReducer,
+  user: userReducer,
+  orders: orderReducer,
 });
 
 //  3. Áp dụng persist
